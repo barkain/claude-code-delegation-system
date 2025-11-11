@@ -126,6 +126,175 @@ alias claudew='claude --append-system-prompt "$(cat ~/.claude/system-prompts/WOR
 
 ## Usage
 
+This section provides comprehensive guidance on how to use the delegation system effectively. You'll learn how the system processes your requests from initial submission through specialized agent execution, understand the visual flowcharts that illustrate the system's architecture, and see practical examples of delegation patterns for both simple and complex workflows.
+
+The delegation system orchestrates a sophisticated workflow from user request through specialized agent execution. Here's the complete flow:
+
+### Complete Delegation Flow
+
+1. **User prompts normally** - Submit any task request to Claude Code
+2. **WORKFLOW_ORCHESTRATOR detects patterns** - System prompt analyzes for multi-step indicators
+3. **TodoWrite creates task list** - Phases are tracked and organized
+4. **Tool attempts blocked by PreToolUse hook** - Direct tool usage is intercepted
+5. **CLAUDE.md policy enforces immediate delegation** - Instructions require `/delegate` usage
+6. **Hook registers session** - First `/delegate` usage marks session as delegated
+7. **Orchestrator analyzes and recommends** - Task complexity determines single vs multi-step approach
+8. **Main Claude executes phases** - Tools are allowed but delegation pattern continues
+9. **Context passes between phases** - Results flow forward through workflow
+
+### High-Level Mechanism Flowchart
+
+This flowchart illustrates the complete decision tree and execution flow of the delegation system, showing how user requests are analyzed, routed, and executed through specialized agents.
+
+**How to read this chart:**
+- **Start point**: User submits a request to Claude Code
+- **Decision diamonds**: Key decision points (command type detection, multi-step analysis, phase continuation)
+- **Process rectangles**: Actions taken by the system (orchestration, analysis, prompt building)
+- **Flow paths**: The path taken depends on whether the task is a delegation command or regular execution, and whether it's single-step or multi-step
+
+**Key insights:**
+- The system differentiates between `/delegate` commands and regular requests at the entry point
+- Task complexity analysis determines whether to use single-step or multi-step workflow
+- Multi-step workflows involve decomposition into phases, agent mapping, and context template creation
+- Single-step workflows directly select an agent and build a delegation prompt
+- User reviews recommendations before execution, maintaining control over the workflow
+- The Task tool spawns specialized agents in isolated sessions
+- Context passes forward through phases in multi-step workflows until completion
+
+```mermaid
+flowchart TD
+    Start([User Request]) --> Parse[Parse Command]
+    Parse --> CheckType{Command Type?}
+
+    CheckType -->|/delegate| Delegate[Delegation Flow]
+    CheckType -->|Regular| Direct[Direct Execution]
+
+    Delegate --> Orchestrator[Delegation Orchestrator]
+    Orchestrator --> Analyze[Analyze Task Complexity]
+
+    Analyze --> IsMulti{Multi-step Task?}
+
+    IsMulti -->|Yes| MultiFlow[Multi-Step Workflow]
+    IsMulti -->|No| SingleFlow[Single-Step Workflow]
+
+    MultiFlow --> Decompose[Decompose into Phases]
+    Decompose --> MapPhases[Map Phases to Agents]
+    MapPhases --> LoadConfigs[Load Agent Configurations]
+    LoadConfigs --> BuildPrompts[Build Phase Prompts]
+    BuildPrompts --> ContextTemplates[Create Context Templates]
+    ContextTemplates --> MultiReport[Generate Multi-Step Report]
+
+    SingleFlow --> SelectAgent[Select Specialized Agent]
+    SelectAgent --> LoadConfig[Load Agent Config]
+    LoadConfig --> BuildPrompt[Build Delegation Prompt]
+    BuildPrompt --> SingleReport[Generate Single-Step Report]
+
+    MultiReport --> Return[Return Recommendation]
+    SingleReport --> Return
+
+    Return --> UserReview[User Reviews Recommendation]
+    UserReview --> Execute{Execute Phase?}
+
+    Execute -->|Yes| TaskTool[Use Task Tool]
+    Execute -->|No| End([Complete])
+
+    TaskTool --> AgentExec[Agent Executes Task]
+    AgentExec --> Results[Capture Results]
+    Results --> MorePhases{More Phases?}
+
+    MorePhases -->|Yes| NextPhase[Prepare Next Phase]
+    NextPhase --> PassContext[Pass Context from Previous Phase]
+    PassContext --> TaskTool
+
+    MorePhases -->|No| End
+
+    Direct --> NormalExec[Normal Claude Execution]
+    NormalExec --> End
+```
+
+### Detailed Sequence: "Build calculator with tests" Example
+
+This sequence diagram provides a concrete walkthrough of how the delegation system handles a real-world multi-step task: creating a calculator application with accompanying tests.
+
+**How to read this chart:**
+- **Participants**: The different components involved in the workflow (User, Claude Main, Orchestrator, Config, Task Tool, Specialized Agent)
+- **Arrows**: Messages and actions flowing between components, showing the chronological sequence
+- **Note boxes**: Important internal processing steps happening within a component
+- **Vertical timeline**: Time flows from top to bottom, showing the order of operations
+
+**Key insights:**
+- The delegation orchestrator detects "with tests" as a multi-step indicator and automatically decomposes the task into two phases
+- Agent selection happens during orchestration: general-purpose for code creation, task-completion-verifier for testing
+- Context passing is explicit: the file path from Phase 1 is passed to Phase 2, enabling the test agent to locate and test the calculator
+- Configuration loading happens just-in-time: agent system prompts are loaded only when needed for execution
+- User maintains control at each phase: execution requires explicit user confirmation between phases
+- The specialized agent for Phase 2 reads the created code, writes tests, and verifies coverage before completion
+- Absolute file paths ensure unambiguous references across phases
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Claude as Claude Main
+    participant Orch as Delegation Orchestrator
+    participant Config as Agent Config
+    participant Task as Task Tool
+    participant Agent as Specialized Agent
+
+    User->>Claude: /delegate Create calculator with tests
+    Claude->>Orch: Invoke orchestrator
+
+    Note over Orch: Task Complexity Analysis
+    Orch->>Orch: Detect multi-step indicators
+    Orch->>Orch: "with tests" detected
+
+    Note over Orch: Task Decomposition
+    Orch->>Orch: Phase 1: Create calculator
+    Orch->>Orch: Phase 2: Write tests
+
+    Note over Orch: Agent Selection
+    Orch->>Orch: Phase 1 → general-purpose
+    Orch->>Orch: Phase 2 → task-completion-verifier
+
+    Orch->>Config: Load task-completion-verifier.md
+    Config-->>Orch: Agent system prompt
+
+    Note over Orch: Prompt Construction
+    Orch->>Orch: Build Phase 1 prompt
+    Orch->>Orch: Build Phase 2 template with context placeholders
+
+    Orch-->>Claude: Multi-step recommendation
+
+    Note over Claude: Phase 1 Ready
+    Claude->>User: Show Phase 1 recommendation
+    User->>Claude: Execute Phase 1
+
+    Claude->>Task: Delegate with Phase 1 prompt
+    Task->>Agent: Execute (general-purpose)
+    Agent-->>Task: Calculator created at /path/to/calc.py
+    Task-->>Claude: Phase 1 results
+
+    Note over Claude: Context Passing
+    Claude->>Claude: Extract: file path, functionality
+
+    Note over Claude: Phase 2 Preparation
+    Claude->>User: Show Phase 2 recommendation with context
+    User->>Claude: Execute Phase 2
+
+    Claude->>Task: Delegate with Phase 2 prompt + context
+    Task->>Config: Load task-completion-verifier
+    Config-->>Task: Verifier system prompt
+    Task->>Agent: Execute (task-completion-verifier)
+
+    Note over Agent: Test Creation
+    Agent->>Agent: Read /path/to/calc.py
+    Agent->>Agent: Write tests for calculator
+    Agent->>Agent: Verify test coverage
+    Agent-->>Task: Tests created and verified
+
+    Task-->>Claude: Phase 2 complete
+    Claude-->>User: All phases complete
+```
+
 ### Basic Delegation
 
 When any tool is blocked, immediately delegate:
