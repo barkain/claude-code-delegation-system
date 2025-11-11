@@ -240,7 +240,7 @@ sequenceDiagram
     participant Task as Task Tool
     participant Agent as Specialized Agent
 
-    User->>Claude: /delegate Create calculator with tests
+    User->>Claude: Create calculator app with tests. Make sure the tests pass
     Claude->>Orch: Invoke orchestrator
 
     Note over Orch: Task Complexity Analysis
