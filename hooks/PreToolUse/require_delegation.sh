@@ -117,7 +117,7 @@ if [[ -z "$TOOL_NAME" ]]; then
     echo "🚫 Tool blocked by delegation policy"
     echo "Tool: <unknown - failed to parse>"
     echo ""
-    echo "⚠️  STOP: Do NOT try alternative tools."
+    echo "⚠️ STOP: Do NOT try alternative tools."
     echo "✅ REQUIRED: Use /delegate command immediately:"
     echo "   /delegate <full task description>"
     echo ""
@@ -128,7 +128,7 @@ else
     echo "🚫 Tool blocked by delegation policy"
     echo "Tool: $TOOL_NAME"
     echo ""
-    echo "⚠️  STOP: Do NOT try alternative tools."
+    echo "⚠️ STOP: Do NOT try alternative tools."
     echo "✅ REQUIRED: Use /delegate command immediately:"
     echo "   /delegate <full task description>"
   } >&2
