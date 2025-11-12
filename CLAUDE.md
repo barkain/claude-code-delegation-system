@@ -56,7 +56,7 @@ uv add --group dev --editable <package_location>
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=droxi_secure_logging --cov-report=html
+uv run pytest --cov=my_project --cov-report=html
 
 # Run specific test file (structured by domain)
 uv run pytest tests/core/test_crypto.py -v                    # Core encryption tests
