@@ -1,13 +1,34 @@
 # Claude Code Delegation System
 
-A hook-based framework for Claude Code that enforces task delegation to specialized agents, enabling structured workflows and expert-level task handling.
+A hook-based framework for Claude Code that enforces task delegation to specialized agents, enabling structured workflows and expert-level task handling through intelligent orchestration.
 
 ## Overview
 
-This system uses Claude Code's hook mechanism to:
-1. **Block direct tool usage** via PreToolUse hooks
-2. **Force delegation** to specialized agents via the `/delegate` command
-3. **Enable multi-step workflows** via system prompt orchestration
+This system uses Claude Code's hook mechanism to create a delegation-enforced workflow architecture that routes tasks to specialized agents for expert-level execution.
+
+### Key Features
+
+- **Enforced Delegation** - PreToolUse hooks block direct tool usage, forcing delegation to specialized agents
+- **10 Specialized Agents** - Each agent has domain expertise (code cleanup, testing, architecture, DevOps, etc.)
+- **Intelligent Orchestration** - Delegation orchestrator analyzes tasks and selects optimal agents via keyword matching
+- **Intelligent Multi-Step Workflows** - Sequential execution for dependent phases, parallel for independent phases
+- **Isolated Subagent Sessions** - Each delegation spawns independent session with custom system prompts
+- **Progress Tracking** - TodoWrite provides visible task list throughout workflow execution
+- **Stateful Session Management** - Fresh delegation enforcement per user message with session registry
+
+### Execution Model
+
+**Single-Step Tasks:**
+1. User submits task → Hook blocks tools → Delegates to specialized agent → Agent executes → Results returned
+
+**Multi-Step Workflows (Sequential or Parallel):**
+1. User submits complex task → Orchestrator decomposes into phases → TodoWrite creates task list
+2. Orchestrator analyzes phase dependencies to determine execution mode
+3. **Sequential:** Dependent phases execute one at a time, passing context forward
+4. **Parallel:** Independent phases execute concurrently in waves for time efficiency
+5. Results consolidated and summary provided
+
+**Execution Mode Selection:** The orchestrator intelligently chooses between sequential (context preservation, dependencies) and parallel (time savings, independence) based on phase dependency analysis.
 
 ## Core Components
 
@@ -71,26 +92,78 @@ claude --append-system-prompt "$(cat ./system-prompts/WORKFLOW_ORCHESTRATOR.md)"
 - Compound indicators: "with [noun]", "including [noun]"
 - Multiple verbs: "create X and test Y"
 
-**Workflow execution:**
-1. Detects multi-step patterns
-2. Creates TodoWrite task list
-3. Delegates each step sequentially
-4. Passes context between steps
-5. Provides final summary with absolute paths
+**Workflow execution model:**
+1. **Intelligent Execution Mode Selection** - Orchestrator analyzes phase dependencies
+2. **Sequential Execution** - Dependent phases execute one at a time with context passing
+3. **Parallel Execution** - Independent phases execute concurrently in waves
+4. **Progress Tracking** - TodoWrite maintains visible task list throughout
+5. **State Management** - Wave synchronization ensures proper completion order
 
-## Setup
+**Note**: The system intelligently chooses execution mode based on phase dependency analysis. Sequential execution is used when phases have data dependencies or file conflicts, ensuring proper context passing and error handling. Parallel execution is used when phases are independent, significantly reducing total execution time while maintaining correctness.
 
-### 1. Install Configuration
+**Workflow orchestration process:**
+1. Detects multi-step patterns in user request
+2. Creates TodoWrite task list with all phases
+3. Analyzes phase dependencies and determines execution mode
+4. **Sequential Mode:** Delegates phases one at a time with context passing
+5. **Parallel Mode:** Groups independent phases into waves, executes waves concurrently
+6. Synchronizes between waves, aggregates results
+7. Provides consolidated summary with absolute paths
 
-Copy the repository contents to your project's `.claude/` directory or use it as your global Claude Code configuration:
+## Quick Start
+
+### Installation
+
+1. **Copy configuration to your Claude Code directory:**
+   ```bash
+   cp -r agents commands hooks system-prompts settings.json ~/.claude/
+   ```
+
+2. **Make hooks executable:**
+   ```bash
+   chmod +x ~/.claude/hooks/PreToolUse/require_delegation.sh
+   chmod +x ~/.claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh
+   chmod +x ~/.claude/scripts/statusline.sh
+   ```
+
+3. **Verify installation:**
+   ```bash
+   ls -la ~/.claude/hooks/PreToolUse/require_delegation.sh
+   ```
+
+### Basic Usage
+
+Once installed, the delegation hook is automatically active. Simply use Claude Code normally:
 
 ```bash
-cp -r agents commands hooks system-prompts settings.json ~/.claude/
+# Multi-step workflow - enable orchestration for context passing
+claude --append-system-prompt "$(cat ~/.claude/system-prompts/WORKFLOW_ORCHESTRATOR.md)" \
+  "Create calculator.py with tests and verify they pass"
 ```
 
-### 2. Configure Hooks
+**What happens:**
+1. You submit a task to Claude Code
+2. PreToolUse hook blocks direct tool usage
+3. CLAUDE.md policy enforces immediate `/delegate` usage
+4. Delegation orchestrator analyzes task complexity
+5. Specialized agent(s) execute the work
+6. Results are captured and summarized
 
-The `settings.json` already configures the required hooks:
+
+### Emergency Bypass
+
+Temporarily disable delegation enforcement if needed:
+
+```bash
+export DELEGATION_HOOK_DISABLE=1
+claude "your command"
+```
+
+## Setup Details
+
+### Hook Configuration
+
+The `settings.json` configures the delegation enforcement hooks:
 
 ```json
 {
@@ -110,19 +183,8 @@ The `settings.json` already configures the required hooks:
 }
 ```
 
-### 3. Enable Workflow Orchestration (Optional)
-
-For multi-step workflows, append the orchestration system prompt:
-
-```bash
-claude --append-system-prompt "$(cat ~/.claude/system-prompts/WORKFLOW_ORCHESTRATOR.md)"
-```
-
-Or add to your shell alias:
-
-```bash
-alias claudew='claude --append-system-prompt "$(cat ~/.claude/system-prompts/WORKFLOW_ORCHESTRATOR.md)"'
-```
+**PreToolUse Hook**: Intercepts every tool call and enforces delegation policy
+**UserPromptSubmit Hook**: Clears delegation state between user prompts to ensure fresh enforcement
 
 ## Usage
 
@@ -144,7 +206,7 @@ The delegation system orchestrates a sophisticated workflow from user request th
 
 ### High-Level Mechanism Flowchart
 
-This flowchart illustrates the complete decision tree and execution flow of the delegation system, showing how user requests are analyzed, routed, and executed through specialized agents.
+This flowchart illustrates the complete decision tree and execution flow of the delegation system, showing how user requests are analyzed, routed, and executed sequentially through specialized agents.
 
 **How to read this chart:**
 - **Start point**: User submits a request to Claude Code
@@ -155,11 +217,15 @@ This flowchart illustrates the complete decision tree and execution flow of the 
 **Key insights:**
 - The system differentiates between `/delegate` commands and regular requests at the entry point
 - Task complexity analysis determines whether to use single-step or multi-step workflow
-- Multi-step workflows involve decomposition into phases, agent mapping, and context template creation
+- Multi-step workflows involve decomposition into phases with dependency analysis
+- **Execution mode selection**: Orchestrator analyzes phase dependencies to choose sequential or parallel execution
+- **Sequential mode**: Phases with dependencies execute one at a time with context passing
+- **Parallel mode**: Independent phases execute concurrently in waves for time efficiency
 - Single-step workflows directly select an agent and build a delegation prompt
 - User reviews recommendations before execution, maintaining control over the workflow
-- The Task tool spawns specialized agents in isolated sessions
-- Context passes forward through phases in multi-step workflows until completion
+- Each delegation spawns an isolated subagent session
+- Context aggregation: Wave results are collected and passed to dependent phases
+- TodoWrite tracks workflow progress, updating after each phase/wave completion
 
 ```mermaid
 flowchart TD
@@ -214,22 +280,27 @@ flowchart TD
 
 ### Detailed Sequence: "Build calculator with tests" Example
 
-This sequence diagram provides a concrete walkthrough of how the delegation system handles a real-world multi-step task: creating a calculator application with accompanying tests.
+This sequence diagram provides a concrete walkthrough of how the delegation system handles a real-world multi-step task: creating a calculator application with accompanying tests using sequential phase execution.
 
 **How to read this chart:**
 - **Participants**: The different components involved in the workflow (User, Claude Main, Orchestrator, Config, Task Tool, Specialized Agent)
 - **Arrows**: Messages and actions flowing between components, showing the chronological sequence
 - **Note boxes**: Important internal processing steps happening within a component
-- **Vertical timeline**: Time flows from top to bottom, showing the order of operations
+- **Vertical timeline**: Time flows from top to bottom, showing the sequential order of operations
 
 **Key insights:**
 - The delegation orchestrator detects "with tests" as a multi-step indicator and automatically decomposes the task into two phases
 - Agent selection happens during orchestration: general-purpose for code creation, task-completion-verifier for testing
+- **Dependency analysis**: Orchestrator identifies that Phase 2 depends on Phase 1's output (file path)
+- **Sequential execution chosen**: Phase 1 must complete before Phase 2 begins due to dependency
 - Context passing is explicit: the file path from Phase 1 is passed to Phase 2, enabling the test agent to locate and test the calculator
 - Configuration loading happens just-in-time: agent system prompts are loaded only when needed for execution
 - User maintains control at each phase: execution requires explicit user confirmation between phases
+- Each phase spawns an isolated subagent session for task execution
 - The specialized agent for Phase 2 reads the created code, writes tests, and verifies coverage before completion
 - Absolute file paths ensure unambiguous references across phases
+- TodoWrite tracks workflow progress, updating status as each phase completes
+- **Note:** If phases were independent (e.g., "analyze auth system AND design payment API"), parallel execution would be selected instead
 
 ```mermaid
 sequenceDiagram
@@ -327,6 +398,59 @@ Use `/ask` when you only need information:
 /ask How does the authentication system work?
 ```
 
+## Architecture Overview
+
+### Execution Model
+
+The delegation system uses an **intelligent subagent execution model** with adaptive orchestration:
+
+**Single-Step Tasks:**
+- Direct delegation to one specialized agent
+- Agent executes task in isolated session
+- Results captured and returned to main session
+
+**Multi-Step Workflows:**
+- **Dependency Analysis** - Orchestrator analyzes phase relationships
+- **Sequential Mode** - Dependent phases execute one at a time with context passing
+- **Parallel Mode** - Independent phases execute concurrently in waves
+- **Context Aggregation** - Results from completed phases flow to dependent phases
+- **TodoWrite Tracking** - Progress visible throughout workflow execution
+
+**Sequential Execution (When Phases Have Dependencies):**
+1. **Context Preservation** - Ensures each phase has complete context from previous phases
+2. **Error Handling** - Allows workflow to stop/adjust if a phase fails
+3. **Resource Management** - Prevents file/resource conflicts
+4. **Debugging** - Clear linear flow makes troubleshooting easier
+5. **State Consistency** - Guarantees artifact availability between phases
+
+**Parallel Execution (When Phases Are Independent):**
+1. **Time Efficiency** - Concurrent execution reduces total workflow time
+2. **Wave Synchronization** - Dependent phases wait for wave completion
+3. **Resource Isolation** - Independent phases operate on different resources
+4. **Scalability** - Up to 4 concurrent delegations per wave
+5. **Conservative Selection** - Defaults to sequential when dependencies are uncertain
+
+**Subagent System:**
+- Each delegation spawns an isolated subagent session
+- Subagents have their own system prompts and tool access
+- Main session orchestrates and captures results
+- Session isolation prevents interference between agents
+
+### Agent Specialization Model
+
+The system provides 10 specialized agents, each with:
+- **Keyword-based activation** - Orchestrator matches task keywords to agent capabilities
+- **Custom system prompts** - Each agent has domain-specific instructions
+- **Tool access control** - Agents have appropriate tool permissions
+- **Expertise focus** - Narrow scope ensures high-quality specialized work
+
+**Agent Selection Process:**
+1. Orchestrator extracts keywords from task description
+2. Matches keywords against agent activation keywords
+3. Selects agent with ≥2 keyword matches
+4. Falls back to general-purpose if no strong match
+5. For multi-step: selects different agents per phase based on phase objectives
+
 ## How It Works
 
 ### The Sophisticated Hook Mechanism
@@ -421,22 +545,36 @@ When `/delegate` is invoked:
    - **Soft Layer**: WORKFLOW_ORCHESTRATOR prompt instructs delegation pattern
    - Main session CAN use tools after first delegation, but CHOOSES to continue delegating
 
-3. **Context Continuity**
-   - TodoWrite tracks overall workflow progress
-   - Each phase captures concrete artifacts (file paths, decisions)
-   - Context flows forward: Phase N receives results from Phases 1..N-1
+3. **Adaptive Execution with Context Management**
+   - TodoWrite tracks overall workflow progress visibly
+   - **Sequential mode**: Each phase executes completely before next phase begins
+   - **Parallel mode**: Independent phases execute concurrently, wave synchronization ensures proper ordering
+   - Context aggregation: Results from completed phases/waves flow to dependent phases
+   - Context includes: file paths, decisions, configurations, issues
    - Absolute paths ensure unambiguous references
+   - Error handling at phase/wave boundaries prevents cascading failures
 
 4. **Intelligent Orchestration**
    - delegation-orchestrator analyzes task complexity
+   - Dependency analysis determines execution mode (sequential vs parallel)
    - Keyword matching selects specialized agents (≥2 matches)
    - Constructs complete prompts with agent system prompts
-   - Multi-step: provides context templates for phase transitions
+   - Multi-step: provides context templates and wave execution plans
+   - Agent selection per phase based on phase-specific objectives
 
-5. **Fresh State Philosophy**
+5. **Isolated Subagent Execution**
+   - Each delegation spawns independent subagent session
+   - Subagents have custom system prompts and tool access
+   - Session isolation prevents cross-contamination
+   - Main session orchestrates and captures results
+   - Sequential mode: ensures resource availability between dependent phases
+   - Parallel mode: up to 4 concurrent subagents per wave with resource isolation
+
+6. **Fresh State Philosophy**
    - UserPromptSubmit ensures no privileges persist across user messages
    - Forces intentional delegation for each new request
    - Prevents workflow "leakage" between tasks
+   - Session registry cleanup after 1 hour prevents stale state
 
 ## Configuration Files
 
@@ -493,12 +631,37 @@ Sessions are automatically cleaned up after 1 hour.
 
 ## Best Practices
 
+### Task Delegation
 1. **Always delegate immediately** when tools are blocked - don't try alternative approaches
-2. **Use descriptive task descriptions** for better agent selection
-3. **Enable workflow orchestration** for multi-step tasks
-4. **Capture context** between workflow phases (file paths, decisions, configurations)
-5. **Use absolute paths** when referencing files in multi-step workflows
-6. **Let TodoWrite track progress** - update after each step completion
+2. **Use descriptive task descriptions** for better agent selection via keyword matching
+3. **Enable workflow orchestration** for multi-step tasks to get context passing support
+4. **Trust the orchestrator** - it analyzes task complexity and selects appropriate agents
+
+### Multi-Step Workflows
+5. **Trust execution mode selection** - orchestrator intelligently chooses sequential or parallel based on dependencies
+6. **Capture comprehensive context** between workflow phases:
+   - File paths (always absolute)
+   - Key decisions made
+   - Configurations determined
+   - Issues encountered and resolutions
+7. **Update TodoWrite after each phase/wave** - provides transparency and progress tracking
+8. **Verify phase/wave results** before proceeding to dependent phases
+9. **Use absolute paths** when referencing files across phases
+10. **Understand execution modes**:
+    - Sequential: Phases with dependencies execute in order
+    - Parallel: Independent phases execute concurrently in waves for efficiency
+
+### Error Handling
+11. **Stop at phase/wave failures** - don't proceed if a phase or wave fails or encounters errors
+12. **Review orchestrator recommendations** - understand execution mode and phase dependencies
+13. **Use emergency bypass sparingly** - only when delegation enforcement needs to be disabled
+14. **Wave failure handling** - in parallel mode, successful phases are preserved while failed phases can be retried
+
+### Agent Selection
+15. **Include relevant keywords** in task descriptions to trigger specialized agents
+16. **Check agent capabilities** (in commands/delegate.md) to understand which keywords activate which agents
+17. **Let orchestrator select agents** - it uses keyword matching with ≥2 match threshold
+18. **Independence indicators** - use "AND" (capitalized) in task descriptions to hint at parallel-safe phases
 
 ## Troubleshooting
 
@@ -543,17 +706,44 @@ Sessions are automatically cleaned up after 1 hour.
 
 ## Technical Details
 
+### Subagent Execution Model
+
+**How Subagents Work:**
+- Each `/delegate` or Task invocation spawns an isolated subagent session
+- Subagent receives complete system prompt (agent-specific + task context)
+- Subagent executes in separate session with full tool access
+- Main session waits for subagent completion and captures results
+- Session isolation ensures no cross-contamination between agents
+
+**Execution Guarantee:**
+- **Sequential mode:** Main session delegates phases one at a time, waits for completion
+- **Parallel mode:** Main session delegates wave phases concurrently, waits for wave completion
+- Captures results (files, decisions, context) after each phase/wave
+- Context aggregation: Results from completed phases/waves flow to dependent phases
+- TodoWrite updates between phases/waves provide progress visibility
+
+**Resource Management:**
+- **Sequential mode:** Only one subagent active per phase
+- **Parallel mode:** Up to 4 concurrent subagents per wave
+- File system state consistency maintained through dependency analysis
+- Context passing ensures artifacts from completed phases available to dependent phases
+- Wave synchronization prevents race conditions
+
 ### Hook Execution
 
 **PreToolUse Hook:**
 - Receives tool name and session ID via stdin JSON
-- Checks against allowed tools list
-- Manages delegation session registry
+- Checks against allowed tools list (AskUserQuestion, TodoWrite, SlashCommand, Task, SubagentTask, AgentTask)
+- Manages delegation session registry (marks sessions as delegated)
 - Returns exit code 0 (allow) or 2 (block)
+- Registers session on first Task/SlashCommand usage
+- Cleanup of sessions older than 1 hour
 
 **UserPromptSubmit Hook:**
 - Cleans up old delegation sessions (>1 hour)
-- Ensures fresh state for new user prompts
+- Clears delegated_sessions.txt to ensure fresh state
+- Ensures fresh delegation enforcement for new user prompts
+- Prevents privilege persistence across user messages
 
 ### Agent Selection Algorithm
 
