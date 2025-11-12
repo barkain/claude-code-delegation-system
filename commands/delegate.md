@@ -334,6 +334,8 @@ Solution design expert for architectural decisions and technology selection.
 
 ---
 
+**Note on Progress Tracking:** When the orchestrator identifies multi-step workflows, the main agent must use TodoWrite to create a structured task list for transparent progress tracking throughout all phases.
+
 ## Execution Process
 
 ### Step 1: Get Orchestration Recommendation
@@ -380,6 +382,8 @@ Extract from orchestrator's output:
 - Extract the complete prompt between the code fence markers
 - Note the context passing requirements for subsequent phases
 
+**Important:** For multi-step workflows, immediately create a TodoWrite task list capturing all phases from the orchestrator's recommendation. This ensures systematic progress tracking and transparent communication with the user throughout the workflow execution.
+
 ### Step 3: Execute Delegation
 
 **For Single-Step Tasks:**
@@ -387,6 +391,8 @@ Extract from orchestrator's output:
 Spawn the appropriate specialized agent directly using the extracted delegation prompt. Simply provide the delegation prompt from the orchestrator's recommendation to the main agent, which will automatically interpret and spawn the correct subagent using Claude's built-in subagent system.
 
 **For Multi-Step Tasks:**
+
+Before executing phases, use TodoWrite to create a task list with all phases identified by the orchestrator, ensuring each phase has both content and activeForm descriptions for clear progress tracking.
 
 Execute Phase 1 first by spawning the appropriate specialized agent directly with the Phase 1 delegation prompt. The main agent will automatically interpret and spawn the correct subagent using Claude's built-in subagent system.
 
@@ -511,6 +517,7 @@ This context gets included in the next orchestrator call to inform Phase 2 plann
 3. **Track context diligently** - In multi-step workflows, capture comprehensive context
 4. **Report transparently** - Let user know which agents handled which parts
 5. **Handle errors gracefully** - Stop and ask user before proceeding after failures
+6. **Use TodoWrite for multi-step workflows** - Create task lists immediately after receiving orchestrator recommendations for multi-step tasks, updating status as each phase completes to maintain transparency
 
 ---
 
