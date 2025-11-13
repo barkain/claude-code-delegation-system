@@ -673,6 +673,9 @@ main() {
             exit 2  # Block the operation
         else
             echo "✅ All critical validations passed"
+            hook_error ""
+            hook_error "📝 REMINDER: Update the todo list"
+            hook_error ""
             exit 0
         fi
     else

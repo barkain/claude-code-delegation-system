@@ -1,6 +1,10 @@
 # Claude Code Delegation System
 
-A hook-based framework for Claude Code that enforces task delegation to specialized agents, enabling structured workflows and expert-level task handling through intelligent orchestration. [See it in action](#workflow-demo) with a visual demonstration below.
+A hook-based framework for Claude Code that enforces task delegation to specialized agents, enabling structured workflows and expert-level task handling through intelligent orchestration.
+
+See the delegation system in action:
+
+<img src="./assets/workflow-example.gif" alt="Workflow Demo" width="800">
 
 ## Overview
 
@@ -150,12 +154,6 @@ claude --append-system-prompt "$(cat ~/.claude/system-prompts/WORKFLOW_ORCHESTRA
 4. Delegation orchestrator analyzes task complexity
 5. Specialized agent(s) execute the work
 6. Results are captured and summarized
-
-### Workflow Demo
-
-See the delegation system in action:
-
-![Workflow Demo](./assets/workflow-example.gif)
 
 
 ### Emergency Bypass

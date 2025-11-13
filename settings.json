@@ -23,6 +23,16 @@
             "command": "~/.claude/hooks/PostToolUse/python_posttooluse_hook.sh"
           }
         ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/PostToolUse/remind_todo_after_task.sh",
+            "timeout": 2
+          }
+        ]
       }
     ],
     "Stop": [
@@ -30,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/hooks/stop/python_stop_hook.sh"
+            "command": "~/.claude/hooks/Stop/python_stop_hook.sh"
           }
         ]
       }
@@ -57,6 +67,18 @@
           }
         ]
       }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/SubagentStop/remind_todo_update.sh",
+            "timeout": 3
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
@@ -64,7 +86,7 @@
     "command": "~/.claude/scripts/statusline.sh",
     "padding": 0
   },
-  "alwaysThinkingEnabled": false,
+  "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1753985473996
   }
