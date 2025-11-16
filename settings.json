@@ -33,6 +33,21 @@
             "timeout": 2
           }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "hooks/PostToolUse/retry_handler.sh",
+            "timeout": 3
+          },
+          {
+            "type": "command",
+            "command": "hooks/PostToolUse/execution_logger.sh",
+            "timeout": 2
+          }
+        ]
       }
     ],
     "Stop": [
