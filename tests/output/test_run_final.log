@@ -1,0 +1,105 @@
+[0;34m===========================================================================[0m
+[0;34m          VALIDATION BLOCKING MECHANISM - COMPREHENSIVE TEST SUITE        [0m
+[0;34m===========================================================================[0m
+
+[0;34mSetting up test environment...[0m
+[0;32mTest environment ready[0m
+
+[0;34m=== Test Suite 1: Successful Validation Allows Continuation ===[0m
+
+[0;32m✓[0m Test 1.1: read_validation_state returns PASSED
+[0;32m✓[0m Test 1.2: evaluate_blocking_rules returns 0 for PASSED
+
+[0;34m=== Test Suite 2: Failed Validation Blocks Workflow ===[0m
+
+[0;32m✓[0m Test 2.1: read_validation_state returns FAILED
+[0;32m✓[0m Test 2.2: evaluate_blocking_rules returns 1 for FAILED
+
+[0;34m=== Test Suite 3: State File Reading Scenarios ===[0m
+
+[0;32m✓[0m Test 3.1: Missing state file returns UNKNOWN
+[0;32m✓[0m Test 3.2: Invalid JSON returns UNKNOWN
+[0;32m✓[0m Test 3.3: Missing validation_status field returns UNKNOWN
+[0;32m✓[0m Test 3.4: Valid state file returns correct status
+
+[0;34m=== Test Suite 4: Enum Validation ===[0m
+
+[0;32m✓[0m Test 4.1: validate_validation_status accepts PASSED
+[0;32m✓[0m Test 4.2: validate_validation_status accepts FAILED
+[0;32m✓[0m Test 4.3: validate_validation_status rejects INVALID
+[0;32m✓[0m Test 4.4: validate_validation_status rejects empty string
+[0;32m✓[0m Test 4.5: validate_validation_status rejects lowercase 'passed'
+[0;32m✓[0m Test 4.6: validate_validation_status rejects lowercase 'failed'
+[0;32m✓[0m Test 4.7: validate_validation_status rejects PENDING
+
+[0;34m=== Test Suite 5: Concurrent Blocking Scenarios ===[0m
+
+[0;32m✓[0m Test 5.1a: Workflow 1 has PASSED status (no leakage)
+[0;32m✓[0m Test 5.1b: Workflow 2 has FAILED status (no leakage)
+[0;32m✓[0m Test 5.1c: Workflow 1 allows continuation
+[0;32m✓[0m Test 5.1d: Workflow 2 blocks correctly
+[0;32m✓[0m Test 5.2: Rapid successive reads maintain consistency
+[0;32m✓[0m Test 5.3a: Phase A has correct isolated status
+[0;32m✓[0m Test 5.3b: Phase B has correct isolated status
+
+[0;34m=== Test Suite 6: Edge Cases ===[0m
+
+[0;32m✓[0m Test 6.1: State file with extra fields works correctly
+[0;32m✓[0m Test 6.2: Null validation_status returns UNKNOWN
+[0;32m✓[0m Test 6.3: Empty JSON object returns UNKNOWN
+[0;32m✓[0m Test 6.4: Very long IDs work correctly
+
+[0;34m===========================================================================[0m
+[0;34m                          TEST EXECUTION REPORT                            [0m
+[0;34m===========================================================================[0m
+
+[0;34mTest Summary:[0m
+  Total Tests Run:    26
+  [0;32mTests Passed:       26[0m
+  [0;31mTests Failed:       0[0m
+
+[0;32m✓ SUCCESS: 100% Pass Rate[0m
+
+[0;34mCode Coverage:[0m
+  Functions Tested:
+    ✓ read_validation_state()
+    ✓ evaluate_blocking_rules()
+    ✓ validate_validation_status()
+
+  Code Paths Covered:
+    ✓ Successful validation (PASSED status)
+    ✓ Failed validation (FAILED status)
+    ✓ Missing state file handling
+    ✓ Invalid JSON handling
+    ✓ Missing field handling
+    ✓ Valid enum values (PASSED, FAILED)
+    ✓ Invalid enum values rejection
+    ✓ Case sensitivity validation
+    ✓ Workflow isolation
+    ✓ Phase isolation within same workflow
+    ✓ Concurrent read operations
+    ✓ Edge cases (extra fields, null values, empty objects, long IDs)
+
+[0;34mEdge Cases Discovered:[0m
+  ✓ Extra fields in state file: Handled correctly (ignored)
+  ✓ Null validation_status: Returns UNKNOWN
+  ✓ Empty JSON object: Returns UNKNOWN
+  ✓ Long workflow/phase IDs: Works correctly
+  ✓ Rapid successive reads: Maintains consistency
+
+[0;34mTest Artifacts:[0m
+  Test Suite: /Users/nadavbarkai/dev/claude-code-delegation-system/tests/unit/test_validation_blocking.sh
+  Report Location: /Users/nadavbarkai/dev/claude-code-delegation-system/tests/output/validation_blocking_report.txt
+awk: syntax error at source line 1
+ context is
+	BEGIN >>>  printf <<<  "%.1f"
+awk: bailing out at source line 1
+awk: syntax error at source line 1
+ context is
+	BEGIN  >>>  ( <<< 
+awk: bailing out at source line 1
+
+[0;34m===========================================================================[0m
+
+[0;34mCleaning up test environment...[0m
+[0;32mCleanup complete[0m

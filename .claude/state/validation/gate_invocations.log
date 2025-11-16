@@ -1,0 +1,324 @@
+[2025-11-15T13:29:25Z] [TRIGGER] [Task] PostToolUse hook invoked
+[2025-11-15T13:29:25Z] [TRIGGER] [Task] Validation trigger detected
+[2025-11-15T13:29:25Z] [SKIP] [Task] Phase validation not required
+[2025-11-15T13:34:22Z] [TRIGGER] [SlashCommand] Delegation command detected (session: sess_123)
+[2025-11-15T13:34:22Z] [SKIP] [config_check] No validation config found for session: sess_123, workflow: 
+[2025-11-15T13:34:22Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:34:22Z] [TRIGGER] [Task] Phase completion detected (session: sess_456, workflow: wf_789)
+[2025-11-15T13:34:22Z] [SKIP] [config_check] No validation config found for session: sess_456, workflow: wf_789
+[2025-11-15T13:34:22Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:34:22Z] [TRIGGER] [SubagentTask] Phase completion detected (session: sess_789, workflow: wf_012)
+[2025-11-15T13:34:22Z] [SKIP] [config_check] No validation config found for session: sess_789, workflow: wf_012
+[2025-11-15T13:34:22Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:34:22Z] [TRIGGER] [AgentTask] Phase completion detected (session: sess_abc, workflow: )
+[2025-11-15T13:34:22Z] [SKIP] [config_check] No validation config found for session: sess_abc, workflow: 
+[2025-11-15T13:34:22Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:34:22Z] [ERROR] [Unknown] Invalid JSON input received by detect_validation_trigger
+[2025-11-15T13:34:22Z] [ERROR] [Unknown] Missing required field: tool.name
+[2025-11-15T13:34:22Z] [ERROR] [Task] Missing required field: sessionId
+[2025-11-15T13:34:22Z] [TRIGGER] [Task] Phase completion detected (session: sess_xyz, workflow: )
+[2025-11-15T13:34:22Z] [SKIP] [config_check] No validation config found for session: sess_xyz, workflow: 
+[2025-11-15T13:34:22Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:34:22Z] [TRIGGER] [Task] Phase completion detected (session: sess_20251115_143022_abc123, workflow: wf_20251115)
+[2025-11-15T13:34:23Z] [SKIP] [config_check] No validation config found for session: sess_20251115_143022_abc123, workflow: wf_20251115
+[2025-11-15T13:34:23Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:34:23Z] [ERROR] [Unknown] Missing required field: tool.name
+[2025-11-15T13:34:23Z] [ERROR] [Unknown] Missing required field: tool.name
+[2025-11-15T13:34:23Z] [ERROR] [Unknown] Missing required field: tool.name
+[2025-11-15T13:34:23Z] [ERROR] [Unknown] Missing required field: tool.name
+[2025-11-15T13:34:23Z] [TRIGGER] [Task] Phase completion detected (session: sess_integration, workflow: wf_integration)
+[2025-11-15T13:34:23Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_integration_1.json
+[2025-11-15T13:34:23Z] [VALIDATION] [gate] Phase validation required (session: sess_integration, workflow: wf_integration)
+[2025-11-15T13:34:23Z] [VALIDATION] [Task] Placeholder validation invoked (not implemented)
+[2025-11-15T13:34:23Z] [VALIDATION] [gate] Validation passed (placeholder)
+[2025-11-15T13:34:29Z] [TRIGGER] [Task] Phase completion detected (session: sess_456, workflow: wf_789)
+[2025-11-15T13:34:29Z] [SKIP] [config_check] No validation config found for session: sess_456, workflow: wf_789
+[2025-11-15T13:34:29Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:34:38Z] [TRIGGER] [Task] Phase completion detected (session: sess_456, workflow: wf_789)
+[2025-11-15T13:34:42Z] [TRIGGER] [SlashCommand] Delegation command detected (session: sess_123)
+[2025-11-15T13:34:42Z] [TRIGGER] [Task] Phase completion detected (session: sess_456, workflow: wf_789)
+[2025-11-15T13:34:42Z] [TRIGGER] [SubagentTask] Phase completion detected (session: sess_789, workflow: wf_012)
+[2025-11-15T13:34:42Z] [TRIGGER] [AgentTask] Phase completion detected (session: sess_abc, workflow: )
+[2025-11-15T13:34:42Z] [ERROR] [Unknown] Invalid JSON input received by detect_validation_trigger
+[2025-11-15T13:34:42Z] [ERROR] [Unknown] Missing required field: tool.name
+[2025-11-15T13:34:42Z] [ERROR] [Task] Missing required field: sessionId
+[2025-11-15T13:34:42Z] [TRIGGER] [Task] Phase completion detected (session: sess_xyz, workflow: )
+[2025-11-15T13:34:42Z] [TRIGGER] [Task] Phase completion detected (session: sess_20251115_143022_abc123, workflow: wf_20251115)
+[2025-11-15T13:34:42Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_789_1.json
+[2025-11-15T13:34:43Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_789_1.json
+[2025-11-15T13:34:43Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_generic_test.json
+[2025-11-15T13:34:43Z] [SKIP] [config_check] No validation config found for session: sess_empty, workflow: wf_empty
+[2025-11-15T13:34:43Z] [TRIGGER] [Task] Phase completion detected (session: sess_integration, workflow: wf_integration)
+[2025-11-15T13:34:43Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_integration_1.json
+[2025-11-15T13:34:43Z] [VALIDATION] [gate] Phase validation required (session: sess_integration, workflow: wf_integration)
+[2025-11-15T13:34:43Z] [VALIDATION] [Task] Placeholder validation invoked (not implemented)
+[2025-11-15T13:34:43Z] [VALIDATION] [gate] Validation passed (placeholder)
+[2025-11-15T13:35:10Z] [TRIGGER] [SlashCommand] Delegation command detected (session: sess_123)
+[2025-11-15T13:35:10Z] [TRIGGER] [Task] Phase completion detected (session: sess_456, workflow: wf_789)
+[2025-11-15T13:35:10Z] [TRIGGER] [SubagentTask] Phase completion detected (session: sess_789, workflow: wf_012)
+[2025-11-15T13:35:10Z] [TRIGGER] [AgentTask] Phase completion detected (session: sess_abc, workflow: )
+[2025-11-15T13:35:10Z] [ERROR] [Unknown] Invalid JSON input received by detect_validation_trigger
+[2025-11-15T13:35:10Z] [ERROR] [Unknown] Missing required field: tool.name
+[2025-11-15T13:35:10Z] [ERROR] [Task] Missing required field: sessionId
+[2025-11-15T13:35:10Z] [TRIGGER] [Task] Phase completion detected (session: sess_xyz, workflow: )
+[2025-11-15T13:35:10Z] [TRIGGER] [Task] Phase completion detected (session: sess_20251115_143022_abc123, workflow: wf_20251115)
+[2025-11-15T13:35:10Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_789_1.json
+[2025-11-15T13:35:10Z] [SKIP] [config_check] No validation config found for session: sess_999, workflow: wf_nonexistent
+[2025-11-15T13:35:10Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_generic_test.json
+[2025-11-15T13:35:10Z] [SKIP] [config_check] No validation config found for session: sess_empty, workflow: wf_empty
+[2025-11-15T13:35:10Z] [TRIGGER] [Task] Phase completion detected (session: sess_integration, workflow: wf_integration)
+[2025-11-15T13:35:10Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_integration_1.json
+[2025-11-15T13:35:10Z] [VALIDATION] [gate] Phase validation required (session: sess_integration, workflow: wf_integration)
+[2025-11-15T13:35:10Z] [VALIDATION] [Task] Placeholder validation invoked (not implemented)
+[2025-11-15T13:35:10Z] [VALIDATION] [gate] Validation passed (placeholder)
+[2025-11-15T13:35:20Z] [TRIGGER] [Task] Phase completion detected (session: test_sess_manual, workflow: test_wf_manual)
+[2025-11-15T13:35:20Z] [SKIP] [config_check] No validation config found for session: test_sess_manual, workflow: test_wf_manual
+[2025-11-15T13:35:20Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: test_workflow, session: test_session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: test_workflow)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_123, session: session_456, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow_123)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_789, session: session_abc, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow_789)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_789, session: session_abc, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow_789)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_789, session: session_abc, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow_789)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_test, session: session_test, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow_test)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: integration_workflow, session: integration_session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_integration_test.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: integration_workflow)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Config file not found: /nonexistent/config.json
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/invalid_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/malformed.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: , session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: )
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: , config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/rule_file_exists.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/rule_file_missing.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow)
+[2025-11-15T13:54:34Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/rule_content_match.json)
+[2025-11-15T13:54:34Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: workflow)
+[2025-11-15T13:54:48Z] [TRIGGER] [Task] Phase completion detected (session: test_session, workflow: test_workflow)
+[2025-11-15T13:54:48Z] [SKIP] [config_check] No validation config found for session: test_session, workflow: test_workflow
+[2025-11-15T13:54:48Z] [SKIP] [gate] No validation config found for this phase
+[2025-11-15T13:55:50Z] [VALIDATION] [invoke] Starting validation (workflow: test_workflow, session: test_session, config: /tmp/test_empty_rules.json)
+[2025-11-15T13:55:50Z] [ERROR] [validation] Validation execution failed (exit code: 127) (workflow: test_workflow)
+[2025-11-15T13:57:17Z] [VALIDATION] [invoke] Starting validation (workflow: test_workflow, session: test_session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: test_workflow)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_123, session: session_456, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: workflow_123)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_789, session: session_abc, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: workflow_789)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_789, session: session_abc, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: workflow_789)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_789, session: session_abc, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: workflow_789)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow_test, session: session_test, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: workflow_test)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: integration_workflow, session: integration_session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_integration_test.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: integration_workflow)
+[2025-11-15T13:57:18Z] [ERROR] [validation] Config file not found: /nonexistent/config.json
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/invalid_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: workflow)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/malformed.json)
+[2025-11-15T13:57:18Z] [ERROR] [validation] Validation execution failed (exit code: 1) (workflow: workflow)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: , session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: )
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: , config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/test_config.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: workflow)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/rule_file_exists.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 1/1 rules passed (workflow: workflow)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/rule_file_missing.json)
+[2025-11-15T13:57:18Z] [ERROR] [validation] Validation execution failed (exit code: 1) (workflow: workflow)
+[2025-11-15T13:57:18Z] [VALIDATION] [invoke] Starting validation (workflow: workflow, session: session, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/test_invocation/rule_content_match.json)
+[2025-11-15T13:57:18Z] [VALIDATION] [validation] Validation PASSED: 1/1 rules passed (workflow: workflow)
+[2025-11-15T17:34:45Z] [VALIDATION] [persist_state] State persisted to /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_test_001_phase_1_validation.json (status: PASSED, rules: 3)
+[2025-11-15T17:34:53Z] [VALIDATION] [persist_state] State persisted to /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_test_001_phase_1_validation.json (status: FAILED, rules: 2)
+[2025-11-15T18:06:20Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_phase1_validation.json: PASSED
+[2025-11-15T18:06:20Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_phase2_validation.json: FAILED
+[2025-11-15T18:06:20Z] [WARNING] [read_state] Missing validation_status field in /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_invalid_validation.json (returning UNKNOWN)
+[2025-11-15T18:06:20Z] [INFO] [read_state] State file not found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_nonexistent_validation.json (returning UNKNOWN)
+[2025-11-15T18:06:20Z] [ERROR] [read_state] Invalid JSON in state file: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_badjson_validation.json (returning UNKNOWN)
+[2025-11-15T18:06:20Z] [WARNING] [read_state] Invalid validation_status value 'INVALID_STATUS' in /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_badstatus_validation.json (returning UNKNOWN)
+[2025-11-15T18:06:33Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_phase1_validation.json: PASSED
+[2025-11-15T18:06:33Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_phase2_validation.json: FAILED
+[2025-11-15T18:06:33Z] [INFO] [read_state] State file not found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_missing_validation.json (returning UNKNOWN)
+[2025-11-15T18:07:38Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_workflow_production_001_build_phase_validation.json: PASSED
+[2025-11-15T18:09:35Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_passed_phase_passed_validation.json: PASSED
+[2025-11-15T18:09:35Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_passed, phase phase_passed: PASSED
+[2025-11-15T18:09:35Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_passed, phase phase_passed
+[2025-11-15T18:09:35Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_failed_phase_failed_validation.json: FAILED
+[2025-11-15T18:09:35Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_failed, phase phase_failed: FAILED
+[2025-11-15T18:09:35Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_failed, phase phase_failed
+[2025-11-15T18:09:35Z] [INFO] [read_state] State file not found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_unknown_phase_unknown_validation.json (returning UNKNOWN)
+[2025-11-15T18:09:35Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_unknown, phase phase_unknown: UNKNOWN
+[2025-11-15T18:09:35Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is UNKNOWN (fail-open) for workflow test_wf_unknown, phase phase_unknown
+[2025-11-15T18:09:54Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_idempotent_phase_idempotent_validation.json: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_idempotent, phase phase_idempotent: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_idempotent, phase phase_idempotent
+[2025-11-15T18:09:54Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_idempotent_phase_idempotent_validation.json: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_idempotent, phase phase_idempotent: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_idempotent, phase phase_idempotent
+[2025-11-15T18:09:54Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_idempotent_phase_idempotent_validation.json: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_idempotent, phase phase_idempotent: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_idempotent, phase phase_idempotent
+[2025-11-15T18:09:54Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_idempotent_phase_idempotent_validation.json: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_idempotent, phase phase_idempotent: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_idempotent, phase phase_idempotent
+[2025-11-15T18:09:54Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_idempotent_phase_idempotent_validation.json: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_idempotent, phase phase_idempotent: FAILED
+[2025-11-15T18:09:54Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_idempotent, phase phase_idempotent
+[2025-11-15T18:12:41Z] [ERROR] [Task] Missing required field: sessionId
+[2025-11-15T18:14:43Z] [TRIGGER] [Task] Phase completion detected (session: test_session_123, workflow: )
+[2025-11-15T18:14:43Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_001_phase_1_validation.json
+[2025-11-15T18:14:43Z] [VALIDATION] [gate] Phase validation required (session: test_session_123, workflow: )
+[2025-11-15T18:14:43Z] [VALIDATION] [invoke] Starting validation (workflow: , session: test_session_123, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_001_phase_1_validation.json)
+[2025-11-15T18:14:43Z] [VALIDATION] [persist_state] State persisted to /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase__unknown_validation.json (status: PASSED, rules: 0)
+[2025-11-15T18:14:43Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: )
+[2025-11-15T18:14:43Z] [DEBUG] [gate] Evaluating blocking rules (workflow: , phase: unknown, status: PASSED)
+[2025-11-15T18:14:43Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase__unknown_validation.json: PASSED
+[2025-11-15T18:14:43Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow , phase unknown: PASSED
+[2025-11-15T18:14:43Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow , phase unknown
+[2025-11-15T18:14:43Z] [VALIDATION] [gate] Validation PASSED - workflow may continue (blocking: allow)
+[2025-11-15T18:14:48Z] [TRIGGER] [Task] Phase completion detected (session: test_session_123, workflow: )
+[2025-11-15T18:14:48Z] [VALIDATION] [config_check] Validation config found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_001_phase_1_validation.json
+[2025-11-15T18:14:48Z] [VALIDATION] [gate] Phase validation required (session: test_session_123, workflow: )
+[2025-11-15T18:14:48Z] [VALIDATION] [invoke] Starting validation (workflow: , session: test_session_123, config: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_001_phase_1_validation.json)
+[2025-11-15T18:14:49Z] [VALIDATION] [persist_state] State persisted to /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase__unknown_validation.json (status: PASSED, rules: 0)
+[2025-11-15T18:14:49Z] [VALIDATION] [validation] Validation PASSED: 0/0 rules passed (workflow: )
+[2025-11-15T18:14:49Z] [DEBUG] [gate] Evaluating blocking rules (workflow: , phase: unknown, status: PASSED)
+[2025-11-15T18:14:49Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase__unknown_validation.json: PASSED
+[2025-11-15T18:14:49Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow , phase unknown: PASSED
+[2025-11-15T18:14:49Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow , phase unknown
+[2025-11-15T18:14:49Z] [VALIDATION] [gate] Validation PASSED - workflow may continue (blocking: allow)
+[2025-11-15T18:15:27Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_pass_phase_pass_validation.json: PASSED
+[2025-11-15T18:15:27Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_pass, phase phase_pass: PASSED
+[2025-11-15T18:15:27Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_pass, phase phase_pass
+[2025-11-15T18:16:21Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_test_pass_phase_pass_validation.json: PASSED
+[2025-11-15T18:16:21Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow wf_test_pass, phase phase_pass: PASSED
+[2025-11-15T18:16:21Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow wf_test_pass, phase phase_pass
+[2025-11-15T18:16:36Z] [ERROR] [read_state] Invalid JSON in state file: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_test_fail_manual_phase_fail_manual_validation.json (returning UNKNOWN)
+[2025-11-15T18:16:36Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow wf_test_fail_manual, phase phase_fail_manual: UNKNOWN
+[2025-11-15T18:16:36Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is UNKNOWN (fail-open) for workflow wf_test_fail_manual, phase phase_fail_manual
+[2025-11-15T18:16:48Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_wf_test_fail_manual2_phase_fail_manual2_validation.json: FAILED
+[2025-11-15T18:16:48Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow wf_test_fail_manual2, phase phase_fail_manual2: FAILED
+[2025-11-15T18:16:48Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow wf_test_fail_manual2, phase phase_fail_manual2
+[2025-11-16T05:12:53Z] [VALIDATION] [validate_status] Invalid validation_status: 'UNKNOWN' (expected: PASSED or FAILED)
+[2025-11-16T05:12:53Z] [VALIDATION] [validate_status] Invalid validation_status: 'passed' (expected: PASSED or FAILED)
+[2025-11-16T05:12:53Z] [VALIDATION] [validate_status] Invalid validation_status: empty value (expected: PASSED or FAILED)
+[2025-11-16T05:16:15Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:15Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:15Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:16:15Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:16:15Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:15Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:15Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:16:15Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:16:22Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:22Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:22Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:16:22Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:16:22Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:22Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:22Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:16:22Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:16:27Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:27Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:27Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:16:27Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:16:27Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:27Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:27Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:16:27Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:16:56Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:56Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:16:56Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:16:56Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:16:56Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:56Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:16:56Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:16:56Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:17:07Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:17:07Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:17:07Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:17:15Z] [TEST] [test_tool] test details
+[2025-11-16T05:17:24Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_eval_test_phase_eval_validation.json: FAILED
+[2025-11-16T05:17:24Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_eval, phase test_phase_eval: FAILED
+[2025-11-16T05:17:24Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_eval, phase test_phase_eval
+[2025-11-16T05:17:44Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:17:44Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:17:44Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:17:44Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:17:44Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:17:44Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:17:44Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:17:44Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:17:50Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:17:50Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:17:50Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:17:50Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:17:50Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:17:50Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:17:50Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:17:50Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:18:11Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:18:11Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:18:11Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:19:17Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:19:17Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:19:17Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:19:17Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:19:17Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:19:17Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:19:17Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:19:17Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:19:24Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:19:24Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:19:24Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:19:24Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_001_test_phase_001_validation.json: PASSED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_001, phase test_phase_001: PASSED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_001, phase test_phase_001
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_002_test_phase_002_validation.json: FAILED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_002, phase test_phase_002: FAILED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_002, phase test_phase_002
+[2025-11-16T05:20:23Z] [INFO] [read_state] State file not found: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_003_test_phase_003_missing_validation.json (returning UNKNOWN)
+[2025-11-16T05:20:23Z] [ERROR] [read_state] Invalid JSON in state file: /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_003_test_phase_003_invalid_json_validation.json (returning UNKNOWN)
+[2025-11-16T05:20:23Z] [WARNING] [read_state] Missing validation_status field in /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_003_test_phase_003_missing_field_validation.json (returning UNKNOWN)
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_003_test_phase_003_valid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [VALIDATION] [validate_status] Invalid validation_status: 'INVALID' (expected: PASSED or FAILED)
+[2025-11-16T05:20:23Z] [VALIDATION] [validate_status] Invalid validation_status: empty value (expected: PASSED or FAILED)
+[2025-11-16T05:20:23Z] [VALIDATION] [validate_status] Invalid validation_status: 'passed' (expected: PASSED or FAILED)
+[2025-11-16T05:20:23Z] [VALIDATION] [validate_status] Invalid validation_status: 'failed' (expected: PASSED or FAILED)
+[2025-11-16T05:20:23Z] [VALIDATION] [validate_status] Invalid validation_status: 'PENDING' (expected: PASSED or FAILED)
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_concurrent_001_phase_001_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_concurrent_002_phase_002_validation.json: FAILED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_concurrent_001_phase_001_validation.json: PASSED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_concurrent_001, phase phase_001: PASSED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] ALLOW: Validation status is PASSED for workflow test_wf_concurrent_001, phase phase_001
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_concurrent_002_phase_002_validation.json: FAILED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] Read validation status for workflow test_wf_concurrent_002, phase phase_002: FAILED
+[2025-11-16T05:20:23Z] [VALIDATION] [evaluate_blocking] BLOCK: Validation status is FAILED for workflow test_wf_concurrent_002, phase phase_002
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_rapid_phase_rapid_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_multi_phase_phase_a_validation.json: PASSED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_multi_phase_phase_b_validation.json: FAILED
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_edge_001_test_phase_edge_001_validation.json: PASSED
+[2025-11-16T05:20:23Z] [WARNING] [read_state] Missing validation_status field in /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_edge_001_test_phase_edge_002_validation.json (returning UNKNOWN)
+[2025-11-16T05:20:23Z] [WARNING] [read_state] Missing validation_status field in /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_wf_edge_001_test_phase_edge_003_validation.json (returning UNKNOWN)
+[2025-11-16T05:20:23Z] [INFO] [read_state] State read from /Users/nadavbarkai/dev/claude-code-delegation-system/.claude/state/validation/phase_test_workflow_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_test_phase_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb_validation.json: PASSED
