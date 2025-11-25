@@ -61,6 +61,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": ".claude/hooks/PreToolUse/check_validation_state.sh",
+            "timeout": 5
+          },
+          {
+            "type": "command",
             "command": ".claude/hooks/PreToolUse/require_delegation.sh",
             "timeout": 5
           }
