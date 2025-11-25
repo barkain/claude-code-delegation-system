@@ -15,6 +15,12 @@ This approach ensures each step gets proper attention while maintaining continui
 
 ## Delegation-First Protocol
 
+> **⚠️ CRITICAL: VERBATIM PASS-THROUGH RULE**
+>
+> **IMMEDIATELY** use `/delegate` with the user's COMPLETE request exactly as received.
+> Do NOT announce, explain, create TodoWrite tasks, or do ANY processing before delegating.
+> The delegation-orchestrator handles all task analysis and decomposition.
+
 **⚠️ MANDATORY: NEVER ATTEMPT TOOLS DIRECTLY - ALWAYS DELEGATE FIRST ⚠️**
 
 When ANY user request requires tool usage (Read, Write, Edit, Grep, Glob, Bash, etc.), you MUST **immediately** use the `/delegate` command to delegate the ENTIRE task. Do NOT attempt the tools yourself first.

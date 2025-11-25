@@ -91,6 +91,14 @@ A task is **multi-step** if it contains ANY of these indicators:
 - "read X and analyze Y and create Z"
 - "create A, write B, update C"
 
+**Period-Separated Action Sequences:**
+- "Verb X. Verb Y. Verb Z." (separate sentences with distinct action verbs)
+- Example: "Review code. Analyze patterns. Report findings."
+
+**Imperative Verb Count Threshold:**
+- If task contains ≥3 action verbs → Multi-step (regardless of connectors)
+- Action verbs: review, analyze, create, implement, design, test, verify, document, report, identify, understand, build, fix, update, explore, examine
+
 **Phase Markers:**
 - "first... then...", "start by... then..."
 - "begin with... after that..."

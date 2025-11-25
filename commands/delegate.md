@@ -12,6 +12,12 @@ allowed-tools: Task
 
 ## How This Works
 
+> **⚠️ CRITICAL: VERBATIM PASS-THROUGH RULE**
+>
+> **IMMEDIATELY** use `/delegate` with the user's COMPLETE request exactly as received.
+> Do NOT announce, explain, create TodoWrite tasks, or do ANY processing before delegating.
+> The delegation-orchestrator handles all task analysis and decomposition.
+
 This command uses a **two-stage delegation architecture**:
 
 ### Stage 1: Orchestration (Analysis & Planning)
