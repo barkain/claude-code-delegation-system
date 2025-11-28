@@ -134,12 +134,11 @@ claude --append-system-prompt "$(cat ./system-prompts/WORKFLOW_ORCHESTRATOR.md)"
 2. **Clone the delegation system into .claude directory:**
    ```bash
    git clone git@github.com:barkain/claude-code-delegation-system.git .claude
-   cd .claude
    ```
 
 3. **Make all shell scripts executable:**
    ```bash
-   find . -type f -iname "*.sh" -exec printf "Changing permissions for: %s\n" {} \; -exec chmod +x {} \;
+   find .claude -type f -iname "*.sh" -exec printf "Changing permissions for: %s\n" {} \; -exec chmod +x {} \;
    ```
 
 4. **Verify hook installation:**
