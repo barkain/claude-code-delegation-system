@@ -29,6 +29,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": ".claude/hooks/PostToolUse/update_wave_state.sh",
+            "timeout": 5,
+            "description": "Auto-advance waves when all phases complete"
+          },
+          {
+            "type": "command",
             "command": ".claude/hooks/PostToolUse/remind_todo_after_task.sh",
             "timeout": 2
           }
@@ -57,22 +63,19 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "TodoWrite",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/PreToolUse/enforce_delegation_first.sh",
-            "timeout": 5
-          }
-        ]
-      },
-      {
         "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/PreToolUse/check_validation_state.sh",
-            "timeout": 5
+            "command": ".claude/hooks/PreToolUse/ensure_workflow_orchestrator.sh",
+            "timeout": 10,
+            "description": "Validate WORKFLOW_ORCHESTRATOR prompt presence and re-inject if missing"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/PreToolUse/validate_task_graph_compliance.sh",
+            "timeout": 5,
+            "description": "Validate Task invocations against active task graph execution plan"
           },
           {
             "type": "command",

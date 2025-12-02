@@ -504,6 +504,63 @@ Extract from orchestrator's output:
 
 **Important:** For multi-step workflows, immediately create a TodoWrite task list capturing all phases from the orchestrator's recommendation. This ensures systematic progress tracking and transparent communication with the user throughout the workflow execution.
 
+---
+
+### Step 2.5: Initialize Task Graph State (Multi-Step Only)
+
+**For Multi-Step Workflows with JSON Execution Plan:**
+
+1. **Locate JSON Execution Plan:**
+   - Find section titled "REQUIRED: Execution Plan (Machine-Parsable)"
+   - Extract complete JSON between code fence markers
+
+2. **Parse and Validate:**
+   - Parse JSON to verify valid structure
+   - Validate schema_version == "1.0"
+   - Verify all required fields present
+
+3. **Initialize State File:**
+   - Create `.claude/state/active_task_graph.json`
+   - Include: execution_plan, phase_status (all "pending"), wave_status, current_wave=0
+
+4. **Verify Enforcement Active:**
+   - State file presence signals hooks to enforce compliance
+   - PreToolUse hook will validate all Task invocations against this plan
+
+**CRITICAL:** If JSON execution plan is present, you MUST initialize state file before executing any phases.
+
+---
+
+### Step 3: Execute According to Wave Structure
+
+**Phase Invocation Format (MANDATORY):**
+
+Every Task tool invocation MUST include phase ID marker:
+
+```
+Phase ID: phase_0_0
+Agent: codebase-context-analyzer
+
+[Delegation prompt from orchestrator for this phase]
+```
+
+**Wave Execution Protocol:**
+
+**For Sequential Waves:**
+- Execute one phase at a time
+- Wait for completion before next phase
+
+**For Parallel Waves (`wave.parallel_execution == true`):**
+- Invoke ALL wave phases in SINGLE message
+- Do NOT wait between individual invocations
+
+**Wave Transition:**
+- PostToolUse hook automatically advances current_wave when all phases complete
+- You will see message: "✅ Wave N complete. Advanced to Wave N+1."
+- Proceed to next wave's phases
+
+---
+
 ### STAGE 2: EXECUTION (Delegation to Specialized Agents)
 
 **Display Format for Single-Step Tasks:**
