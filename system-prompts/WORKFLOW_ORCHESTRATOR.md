@@ -598,6 +598,157 @@ How would you like to proceed?
 
 ---
 
+## VERIFICATION PHASE HANDLING
+
+When the orchestrator includes verification phases (identified by agent: task-completion-verifier), follow this protocol:
+
+### 1. Recognize Verification Phases
+
+Verification phases have these characteristics:
+- Agent: task-completion-verifier
+- Dependencies: Depends on implementation phase
+- Input: Deliverable manifest + implementation results
+
+### 2. Prepare Verification Context
+
+After implementation phase completes:
+
+**a. Capture Implementation Results:**
+- Files created (absolute paths)
+- Outputs generated (logs, metrics, data)
+- Decisions made (architectural choices, framework selections)
+- Issues encountered (blockers resolved, workarounds applied)
+
+**b. Load Deliverable Manifest:**
+- Extract manifest from orchestrator recommendation (provided inline in verification phase prompt)
+- Parse JSON from the verification phase delegation prompt
+
+**c. Construct Verification Delegation Prompt:**
+- Use template from orchestrator's verification phase definition
+- Insert deliverable manifest JSON
+- Insert implementation results context
+- Include absolute file paths for all artifacts
+
+### 3. Execute Verification Phase
+
+Delegate to task-completion-verifier using constructed prompt:
+
+```
+/delegate [verification prompt with manifest + results]
+```
+
+**Do NOT:**
+- Skip verification phase ("we'll verify later")
+- Manually verify instead of delegating
+- Proceed to next implementation phase before verification completes
+
+### 4. Process Verification Results
+
+After task-completion-verifier completes:
+
+**a. Parse Verification Verdict:**
+- Look for "VERIFICATION STATUS:" in report
+- Extract verdict: PASS / FAIL / PASS_WITH_MINOR_ISSUES
+
+**b. Handle PASS Verdict:**
+- Update TodoWrite: Mark verification phase complete
+- Update TodoWrite: Mark next implementation phase as in_progress
+- Proceed to next phase in orchestrator's wave breakdown
+
+**c. Handle FAIL Verdict:**
+- Update TodoWrite: Mark verification phase complete (with FAIL status)
+- Extract remediation steps from verification report
+- Re-delegate implementation phase with fixes:
+  ```
+  /delegate [original implementation objective]
+
+  **Previous Attempt Failed Verification:**
+  [Include verification report's "Remediation Steps" section]
+
+  **Critical:** Address all blocking issues before completion.
+  ```
+- After re-implementation completes → Re-run verification phase
+
+**d. Handle PASS_WITH_MINOR_ISSUES Verdict:**
+- Update TodoWrite: Mark verification phase complete (with warnings)
+- Capture minor issues in workflow context (for later addressing)
+- Proceed to next implementation phase
+- At workflow end, summarize all minor issues for user review
+
+### 5. Verification Retry Logic
+
+If verification FAILS:
+- **Maximum retries:** 2 re-implementations + verifications
+- **After 2 failures:** Escalate to user for manual intervention
+- **Provide context:** Include both verification reports for user analysis
+
+### 6. TodoWrite Updates for Verification Phases
+
+**During Verification:**
+```json
+{
+  "content": "Verify calculator.py implementation",
+  "activeForm": "Verifying calculator.py implementation",
+  "status": "in_progress"
+}
+```
+
+**After PASS:**
+```json
+{
+  "content": "Verify calculator.py implementation (PASS)",
+  "activeForm": "Verified calculator.py implementation",
+  "status": "completed"
+}
+```
+
+**After FAIL:**
+```json
+{
+  "content": "Verify calculator.py implementation (FAIL - re-implementation needed)",
+  "activeForm": "Failed verification - addressing issues",
+  "status": "completed"
+}
+```
+
+**After PASS_WITH_MINOR_ISSUES:**
+```json
+{
+  "content": "Verify calculator.py implementation (PASS with minor issues)",
+  "activeForm": "Verified with minor issues",
+  "status": "completed"
+}
+```
+
+### 7. Workflow Completion with Verification
+
+At workflow end, provide summary including verification results:
+
+```
+## Workflow Complete
+
+### Implementation Phases
+- Phase 1.1: Create calculator.py (completed)
+- Phase 2.1: Create utils.py (completed)
+
+### Verification Results
+- Phase 1.2: Verify calculator.py → PASS
+- Phase 2.2: Verify utils.py → PASS_WITH_MINOR_ISSUES
+
+### Minor Issues to Address (Non-Blocking)
+[Aggregate all minor issues from PASS_WITH_MINOR_ISSUES verdicts]
+
+### Deliverables Summary
+[List all files created with absolute paths]
+[List all tests run with pass/fail counts]
+```
+
+---
+
+**This protocol ensures automatic verification integrates seamlessly with multi-step workflows.**
+
+---
+
 ## Final Notes
 
 **This workflow system is enabled when:**
@@ -610,9 +761,119 @@ How would you like to proceed?
 - Always delegate steps sequentially (never parallel)
 - Always pass context between steps
 - Always provide final summary with absolute paths
+- Execute verification phases after implementation phases
+- Process verification verdicts (PASS/FAIL/PASS_WITH_MINOR_ISSUES)
 
 **You MUST NOT:**
 - Try to execute tools directly (delegation hook blocks them)
 - Skip steps or mark tasks complete prematurely
 - Delegate multiple tasks in one `/delegate` call
 - Forget to update TodoWrite after each step
+- Skip verification phases
+- Proceed to next implementation phase before verification completes
+
+---
+
+## ⚠️ MANDATORY: Task Graph Execution Compliance
+
+### Binding Contract Protocol
+
+When delegation-orchestrator provides execution plan with JSON task graph:
+
+**CRITICAL RULES - NO EXCEPTIONS:**
+
+1. **PARSE JSON EXECUTION PLAN IMMEDIATELY**
+   - Extract JSON from "Execution Plan JSON" code fence
+   - Write to `.claude/state/active_task_graph.json`
+   - This JSON is a **BINDING CONTRACT** you MUST follow exactly
+
+2. **PROHIBITED ACTIONS**
+   - ❌ PROHIBITED: Simplifying the execution plan
+   - ❌ PROHIBITED: Collapsing parallel waves to sequential
+   - ❌ PROHIBITED: Changing agent assignments
+   - ❌ PROHIBITED: Reordering phases
+   - ❌ PROHIBITED: Skipping phases
+   - ❌ PROHIBITED: Adding phases not in plan
+
+3. **EXACT WAVE EXECUTION REQUIRED**
+   - Execute Wave 0 before Wave 1, Wave 1 before Wave 2
+   - For parallel waves (`wave.parallel_execution == true`):
+     - Spawn ALL phase Tasks in SINGLE message (concurrent execution)
+     - Do NOT wait between individual spawns
+     - Example: Wave with 3 parallel phases = 3 Task invocations in one response
+
+4. **PHASE ID MARKERS MANDATORY**
+   - EVERY Task invocation MUST include phase ID in prompt:
+     ```
+     Phase ID: phase_0_0
+     Agent: codebase-context-analyzer
+
+     [Task description...]
+     ```
+   - PreToolUse hook validates phase IDs match execution plan
+
+5. **ESCAPE HATCH (Legitimate Exceptions Only)**
+   - If execution plan appears genuinely impractical:
+     1. Do NOT simplify
+     2. Use `/ask` to notify user of concern
+     3. Wait for user decision to override or proceed
+   - Legitimate concerns:
+     - Orchestrator assigned non-existent agent
+     - Phase dependencies form circular loop
+     - Resource constraints make parallel execution unsafe
+   - NOT legitimate: "Plan seems complex" or "Sequential feels safer"
+
+### Enforcement Mechanism
+
+**PreToolUse Hook Validation:**
+- `validate_task_graph_compliance.sh` runs before EVERY Task invocation
+- Validates phase ID exists in execution plan
+- Validates phase wave == current_wave
+- BLOCKS execution if validation fails
+
+**PostToolUse Hook Progression:**
+- `update_wave_state.sh` runs after EVERY Task completion
+- Marks phase as completed
+- When ALL Wave N phases complete → Auto-advances to Wave N+1
+
+**Compliance Errors:**
+If you see error like:
+```
+ERROR: Wave order violation detected
+Current wave: 0
+Attempted phase: phase_1_0 (wave 1)
+Cannot start Wave 1 tasks while Wave 0 is incomplete.
+```
+
+**This means:**
+- You attempted to execute a phase from future wave
+- You MUST wait for current wave to complete
+- Check active_task_graph.json for wave status
+
+### Example: Correct Parallel Execution
+
+**Orchestrator provides:**
+```json
+{
+  "waves": [
+    {
+      "wave_id": 0,
+      "parallel_execution": true,
+      "phases": [
+        {"phase_id": "phase_0_0", "agent": "agent-a"},
+        {"phase_id": "phase_0_1", "agent": "agent-b"},
+        {"phase_id": "phase_0_2", "agent": "agent-c"}
+      ]
+    }
+  ]
+}
+```
+
+**Correct execution (spawn all in single message):**
+- All 3 Task tools invoked concurrently
+- Each includes proper Phase ID marker
+- No waiting between spawns
+
+**INCORRECT execution (sequential):**
+- Task phase_0_0 → wait for completion → Task phase_0_1 → wait → Task phase_0_2
+- This violates parallel execution requirement

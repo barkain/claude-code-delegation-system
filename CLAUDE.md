@@ -202,6 +202,69 @@ CHECK_RUFF=0 ./hooks/PostToolUse/python_posttooluse_hook.sh your_file.py
 CHECK_PYRIGHT=0 ./hooks/PostToolUse/python_posttooluse_hook.sh your_file.py
 ```
 
+## Automatic Deliverable Verification
+
+This project uses automatic verification for multi-step workflows to ensure implementation quality.
+
+### How It Works
+
+1. **Deliverable Manifests:** The delegation orchestrator generates structured deliverable manifests for each implementation phase, specifying expected files, functions, tests, and acceptance criteria.
+
+2. **Auto-Inserted Verification Phases:** After each implementation phase, the orchestrator automatically inserts a verification phase using the task-completion-verifier agent.
+
+3. **Manifest-Driven Validation:** The verifier performs structured checks:
+   - File existence and content validation
+   - Function/class presence verification
+   - Type hint validation (Python)
+   - Test execution and coverage analysis
+   - Acceptance criteria validation
+
+4. **Verdict Processing:**
+   - **PASS:** Workflow proceeds to next phase
+   - **FAIL:** Re-implementation with remediation steps
+   - **PASS_WITH_MINOR_ISSUES:** Proceed with warnings tracked
+
+### Wave Structure
+
+Verification phases are automatically scheduled in the wave after implementation:
+
+```
+Wave 0: Implementation phases (can be parallel)
+Wave 1: Verification phases (sequential after Wave 0)
+Wave 2: Next implementation phases
+Wave 3: Verification phases
+```
+
+### Deliverable Manifest Example
+
+```json
+{
+  "phase_id": "phase_1_1",
+  "phase_objective": "Create calculator.py with add and subtract functions",
+  "deliverable_manifest": {
+    "files": [{
+      "path": "calculator.py",
+      "must_exist": true,
+      "functions": ["add", "subtract"],
+      "type_hints_required": true
+    }],
+    "tests": [{
+      "test_command": "pytest test_calculator.py",
+      "all_tests_must_pass": true,
+      "min_coverage": 0.8
+    }],
+    "acceptance_criteria": [
+      "Functions support int and float inputs",
+      "Error handling for invalid inputs"
+    ]
+  }
+}
+```
+
+For complete workflow orchestration documentation, see `system-prompts/WORKFLOW_ORCHESTRATOR.md`.
+
+---
+
 ## Reference
 
 For complete project documentation, usage, and architecture, see [README.md](README.md).

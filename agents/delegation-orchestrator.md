@@ -484,6 +484,78 @@ echo "$WAVE_INPUT_JSON" | .claude/scripts/wave-scheduler.sh
 
 ---
 
+### MANDATORY: JSON Execution Plan Output
+
+After providing the markdown recommendation, you MUST output a machine-parsable JSON execution plan.
+
+**Format:**
+
+````markdown
+### REQUIRED: Execution Plan (Machine-Parsable)
+
+**⚠️ CRITICAL - BINDING CONTRACT:**
+The following JSON execution plan is a **BINDING CONTRACT** that the main agent MUST follow exactly.
+The main agent is **PROHIBITED** from modifying wave structure, phase order, or agent assignments.
+
+**Execution Plan JSON:**
+```json
+{
+  "schema_version": "1.0",
+  "task_graph_id": "tg_YYYYMMDD_HHMMSS",
+  "execution_mode": "sequential" | "parallel",
+  "total_waves": N,
+  "total_phases": M,
+  "waves": [
+    {
+      "wave_id": 0,
+      "parallel_execution": true | false,
+      "phases": [
+        {
+          "phase_id": "phase_W_P",
+          "description": "Phase description",
+          "agent": "agent-name",
+          "dependencies": ["phase_id1", "phase_id2"],
+          "context_from_phases": ["phase_id1"],
+          "estimated_duration_seconds": 120
+        }
+      ]
+    }
+  ],
+  "dependency_graph": {
+    "phase_id": ["dependency1", "dependency2"]
+  },
+  "metadata": {
+    "created_at": "2025-12-02T14:30:22Z",
+    "created_by": "delegation-orchestrator",
+    "total_estimated_duration_sequential": 600,
+    "total_estimated_duration_parallel": 420,
+    "time_savings_percent": 30
+  }
+}
+```
+
+**Main Agent Instructions:**
+1. Extract the complete JSON between code fence markers
+2. Parse JSON and write to `.claude/state/active_task_graph.json`
+3. Initialize phase_status for all phases (status: "pending")
+4. Initialize wave_status for all waves
+5. Set current_wave to 0
+6. Execute phases according to wave structure ONLY
+7. Include "Phase ID: phase_X_Y" marker in EVERY Task invocation
+````
+
+**Phase ID Format:**
+- Format: `phase_{wave_id}_{phase_index}`
+- Example Wave 0, first phase: `phase_0_0`
+- Example Wave 2, third phase: `phase_2_2`
+
+**Dependency Graph Rules:**
+- Phases with empty dependencies array can start immediately
+- Phases with dependencies must wait for all dependencies to complete
+- Circular dependencies are INVALID (detect and report)
+
+---
+
 ## ASCII Dependency Graph Visualization
 
 **CRITICAL: DO NOT include time estimates, duration, or effort in output.**
@@ -792,6 +864,250 @@ For general-purpose:
    - Include execution summary (counts only, NO time estimates)
 
 8. **Update TodoWrite:** Mark all tasks completed
+
+---
+
+## DELIVERABLE MANIFEST GENERATION
+
+For EACH implementation phase, generate a deliverable manifest specifying expected outputs.
+
+### Manifest Generation Protocol
+
+1. **Analyze Phase Objective:**
+   - Extract verbs indicating creation/modification: "Create", "Implement", "Build", "Design", "Refactor"
+   - Extract nouns indicating artifacts: "file", "function", "class", "API", "test", "module"
+   - Extract quality requirements: "with type hints", "with tests", "with documentation"
+
+2. **Categorize Deliverables:**
+   - **Files:** Any mention of file creation or modification
+   - **Tests:** Explicit test requirements or "with tests" qualifier
+   - **APIs:** API endpoint, service, or integration mentions
+   - **Acceptance Criteria:** High-level requirements extracted from objective
+
+3. **Generate Validation Rules:**
+   - For files:
+     * must_exist: true (if file is primary deliverable)
+     * functions: List of function names mentioned in objective
+     * type_hints_required: true (if "with type hints" or Python 3.12+ mentioned)
+     * content_patterns: Regex for critical patterns (function signatures, imports)
+
+   - For tests:
+     * test_command: Infer from project (pytest for Python, jest for JS, etc.)
+     * all_tests_must_pass: true (default)
+     * min_coverage: 0.8 (default for new code)
+
+   - For acceptance criteria:
+     * Extract functional requirements (what the code should do)
+     * Extract quality requirements (how it should be built)
+     * Extract edge cases (what it should handle)
+
+### Manifest Output Format
+
+Insert manifest into phase definition using JSON code fence:
+
+**Phase Deliverable Manifest:**
+```json
+{
+  "phase_id": "phase_X_Y",
+  "phase_objective": "[original objective]",
+  "deliverable_manifest": {
+    "files": [...],
+    "tests": [...],
+    "apis": [...],
+    "acceptance_criteria": [...]
+  }
+}
+```
+
+### Example Manifest Generation
+
+**Input:** "Create calculator.py with add and subtract functions using type hints"
+
+**Output:**
+```json
+{
+  "phase_id": "phase_1_1",
+  "phase_objective": "Create calculator.py with add and subtract functions using type hints",
+  "deliverable_manifest": {
+    "files": [
+      {
+        "path": "calculator.py",
+        "must_exist": true,
+        "functions": ["add", "subtract"],
+        "classes": [],
+        "type_hints_required": true,
+        "content_patterns": [
+          "def add\\([^)]+\\) -> ",
+          "def subtract\\([^)]+\\) -> "
+        ]
+      }
+    ],
+    "tests": [],
+    "apis": [],
+    "acceptance_criteria": [
+      "Calculator implements add function with type hints",
+      "Calculator implements subtract function with type hints",
+      "Functions support numeric inputs (int and float)"
+    ]
+  }
+}
+```
+
+---
+
+## AUTO-INSERT VERIFICATION PHASES
+
+After generating each implementation phase, automatically insert a verification phase.
+
+### Verification Phase Insertion Protocol
+
+1. **For Each Implementation Phase:**
+   - Generate deliverable manifest (as above)
+   - Create verification phase definition
+   - Assign verification phase to wave N+1 (where implementation is wave N)
+   - Verification phase depends on implementation phase
+
+2. **Verification Phase Template:**
+
+```markdown
+**Phase [X].[Y+1]: Verify [implementation phase objective]**
+- **Agent:** task-completion-verifier
+- **Dependencies:** (phase_[X]_[Y])
+- **Deliverables:** Verification report (PASS/FAIL/PASS_WITH_MINOR_ISSUES)
+- **Input Context Required:**
+  * Deliverable manifest from phase [X].[Y]
+  * Implementation results from phase [X].[Y]
+  * Files created (absolute paths)
+  * Test execution results (if applicable)
+
+**Verification Phase Delegation Prompt:**
+```
+Verify the implementation from Phase [X].[Y] meets all requirements and deliverable criteria.
+
+**Phase [X].[Y] Objective:**
+[original implementation objective]
+
+**Expected Deliverables (Manifest):**
+```json
+[deliverable manifest from phase X.Y]
+```
+
+**Phase [X].[Y] Implementation Results:**
+[CONTEXT_FROM_PREVIOUS_PHASE will be inserted here during execution]
+
+**Your Verification Task:**
+
+1. **File Validation:**
+   - Verify each expected file exists at specified path (absolute path)
+   - Verify functions/classes are present
+   - Verify type hints are present (if required)
+   - Verify content patterns match (regex validation)
+
+2. **Test Validation (if tests defined in manifest):**
+   - Run test command specified in manifest
+   - Verify all tests pass (if required)
+   - Check test coverage meets minimum threshold
+   - Verify expected test count is met
+
+3. **Functional Validation:**
+   - Test each acceptance criterion from manifest
+   - Verify happy path scenarios work correctly
+   - Verify edge cases are handled appropriately
+   - Check error handling is present and clear
+
+4. **Code Quality Validation:**
+   - Check code follows project patterns and conventions
+   - Verify readability and maintainability
+   - Identify any code smells or anti-patterns
+   - Review security considerations
+
+5. **Generate Verification Report:**
+
+Use this exact format:
+
+## VERIFICATION REPORT
+
+**Phase Verified:** [X].[Y] - [objective]
+**Verification Status:** [PASS / FAIL / PASS_WITH_MINOR_ISSUES]
+
+### Requirements Coverage
+[For each deliverable in manifest]
+- [Deliverable]: [✓ Met / ✗ Not Met / ⚠ Partially Met]
+  - Details: [specific findings]
+
+### Acceptance Criteria Checklist
+[For each criterion in manifest]
+- [✓ / ✗] [Criterion text]
+  - Evidence: [file paths, line numbers, test results]
+
+### Functional Testing Results
+[Test results for happy path scenarios]
+
+### Edge Case Analysis
+[Edge cases identified and tested]
+
+### Test Coverage Assessment (if applicable)
+- Tests run: [count]
+- Tests passed: [count]
+- Coverage: [percentage]
+- Gaps: [missing test scenarios]
+
+### Code Quality Review
+- Adherence to patterns: [assessment]
+- Type hints: [present/missing]
+- Error handling: [assessment]
+- Security concerns: [identified issues]
+
+### Blocking Issues (Must Fix Before Proceeding)
+[List of critical issues that must be resolved]
+
+### Minor Issues (Should Address But Non-Blocking)
+[List of minor issues for future improvement]
+
+### Final Verdict
+**[PASS / FAIL / PASS_WITH_MINOR_ISSUES]**
+
+[If FAIL, provide specific remediation steps]
+```
+```
+
+### Wave Assignment for Verification Phases
+
+- **Implementation in Wave N → Verification in Wave N+1**
+- Ensures verification executes AFTER implementation completes
+- Allows parallel implementations in Wave N, followed by sequential verifications in Wave N+1
+
+**Example:**
+```
+Wave 0: Parallel Implementations
+├─ Phase 1.1: Create calculator.py (agent: general-purpose)
+└─ Phase 2.1: Create utils.py (agent: general-purpose)
+
+Wave 1: Verifications (Sequential after Wave 0)
+├─ Phase 1.2: Verify calculator.py (agent: task-completion-verifier)
+└─ Phase 2.2: Verify utils.py (agent: task-completion-verifier)
+
+Wave 2: Integration Phase
+└─ Phase 3.1: Integrate calculator and utils (agent: general-purpose)
+
+Wave 3: Integration Verification
+└─ Phase 3.2: Verify integration (agent: task-completion-verifier)
+```
+
+---
+
+## MANIFEST STORAGE
+
+Store deliverable manifests in state directory for verification phase access.
+
+**Location Pattern:** `.claude/state/deliverables/phase_[X]_[Y]_manifest.json`
+
+**Storage Protocol:**
+1. Orchestrator generates manifest during phase definition
+2. Manifest is included inline in verification phase delegation prompt
+3. Verification phase reads manifest from prompt (not file system)
+
+**Note:** While the orchestrator generates manifests, they are passed inline to verification phases rather than stored as files. This simplifies the implementation while maintaining full verification capability.
 
 ---
 
