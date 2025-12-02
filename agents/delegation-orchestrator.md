@@ -1111,6 +1111,102 @@ Store deliverable manifests in state directory for verification phase access.
 
 ---
 
+## TASK GRAPH JSON OUTPUT & DAG VISUALIZATION
+
+After generating the task breakdown, you MUST output a structured JSON task graph and render an ASCII DAG visualization.
+
+### JSON Schema
+
+```json
+{
+  "workflow": {
+    "name": "string - workflow name",
+    "total_phases": "number - total task count",
+    "total_waves": "number - wave count"
+  },
+  "waves": [
+    {
+      "id": "number - wave index starting from 0",
+      "name": "string - wave name (Foundation, Design, Implement, Verify)",
+      "parallel": "boolean - true if tasks run in parallel",
+      "tasks": [
+        {
+          "id": "string - task ID like '1.1', '2.1'",
+          "type": "string - research|design|implement|verify|test",
+          "emoji": "string - 📊|🎨|💻|✅|🧪",
+          "title": "string - short task title",
+          "agent": "string - agent name",
+          "goal": "string - task goal description",
+          "deliverable": "string - output file/artifact path",
+          "depends_on": ["array of task IDs this depends on"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Task Type Guidelines
+
+- **research** (📊): Analysis, exploration, documentation review
+- **design** (🎨): Architecture, planning, solution design
+- **implement** (💻): Code creation, file modifications, building
+- **verify** (✅): Testing, validation, quality checks
+- **test** (🧪): Test creation, test execution
+
+### Wave Naming Conventions
+
+- **Foundation**: Initial research, analysis, setup
+- **Design**: Architecture and planning phases
+- **Implement**: Code implementation phases
+- **Verify**: Testing and validation phases
+- **Integration**: Combining components
+- **Deploy**: Deployment and release phases
+
+### JSON Output Protocol
+
+1. **Write JSON to `.claude/state/current_task_graph.json`**
+   - Create the file using Bash tool: `cat > .claude/state/current_task_graph.json <<'EOF' ... EOF`
+   - Ensure valid JSON syntax (no trailing commas, proper quoting)
+
+2. **Render ASCII DAG**
+   - Run: `python scripts/render_dag.py .claude/state/current_task_graph.json`
+   - Capture stdout output containing the rendered DAG
+
+3. **Include Rendered DAG in Your Response**
+   - Copy the complete ASCII visualization into your recommendation
+   - Place it in the "REQUIRED: ASCII Dependency Graph" section
+   - The rendered DAG provides a visual complement to the JSON
+
+### Example Output Flow
+
+```markdown
+## ORCHESTRATION RECOMMENDATION
+
+### Task Analysis
+- **Type**: Multi-step hierarchical workflow
+- **Total Atomic Tasks**: 7
+- **Total Waves**: 4
+- **Execution Mode**: Parallel
+
+### REQUIRED: ASCII Dependency Graph
+
+[Paste complete output from render_dag.py here]
+
+### Wave Breakdown
+[Detailed phase descriptions...]
+```
+
+### Benefits of DAG Visualization
+
+- **Visual Clarity**: Easy to understand task flow at a glance
+- **Dependency Validation**: Quickly spot circular dependencies or bottlenecks
+- **Parallel Opportunities**: Visually see where parallelization occurs
+- **Communication**: Share workflow structure with stakeholders
+- **Debugging**: Identify issues in wave assignments or dependencies
+
+---
+
 ## MANDATORY PRE-GENERATION GATE
 
 **CRITICAL: You MUST complete ALL steps in sequence before writing your recommendation.**
