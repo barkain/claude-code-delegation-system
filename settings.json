@@ -37,6 +37,12 @@
             "type": "command",
             "command": ".claude/hooks/PostToolUse/remind_todo_after_task.sh",
             "timeout": 2
+          },
+          {
+            "type": "command",
+            "command": "hooks/PostToolUse/inject_dag_visualization.sh",
+            "timeout": 10,
+            "description": "Inject DAG visualization after Task completion"
           }
         ]
       },
