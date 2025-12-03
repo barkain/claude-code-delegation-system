@@ -157,6 +157,119 @@ A task is **NON-ATOMIC** if work can be parallelized across multiple resources (
 
 ---
 
+## Verification Phase Auto-Injection
+
+**CRITICAL: After task decomposition completes, automatically inject verification phases for all implementation phases.**
+
+### Implementation Phase Detection
+
+Identify atomic tasks that are "implementation phases" by matching keywords in the task description:
+
+**Implementation Keywords:** `implement`, `create`, `build`, `develop`, `code`, `write`, `add`, `make`, `construct`, `generate`
+
+**Detection Algorithm:**
+```python
+IMPL_KEYWORDS = ["implement", "create", "build", "develop", "code", "write", "add", "make", "construct", "generate"]
+
+def is_implementation_phase(task_description):
+    desc_lower = task_description.lower()
+    return any(keyword in desc_lower for keyword in IMPL_KEYWORDS)
+```
+
+### Auto-Injection Protocol
+
+**For each implementation phase detected:**
+
+1. **Create Verification Phase:**
+   - Phase ID: `{impl_phase_id}_verify`
+   - Description: `Verify: {impl_phase_description} - test functionality, edge cases, error handling`
+   - Agent: `task-completion-verifier`
+   - Dependencies: `[impl_phase_id]`
+   - Depth: Same as implementation phase
+   - is_atomic: `true`
+
+2. **Update Dependency Graph:**
+   - Add verification phase to task tree
+   - Set verification phase dependencies to include implementation phase
+   - **CRITICAL:** Update any phases that originally depended on the implementation phase to now depend on the verification phase instead (ensures verification completes before downstream phases start)
+
+3. **Construct Verification Prompt:**
+```
+You are task-completion-verifier. Verify the implementation from phase {impl_phase_id}.
+
+**Implementation to Verify:**
+- Phase: {impl_phase_description}
+- Expected Deliverables: {impl_phase_deliverables}
+- File(s) Created: {files_from_context}
+
+**Verification Checklist:**
+1. Functionality: Does implementation meet requirements?
+2. Edge Cases: Are boundary conditions handled?
+3. Error Handling: Are errors caught and handled gracefully?
+4. Code Quality: Does code follow project standards?
+5. Tests: Do tests exist and pass?
+
+**Expected Output:**
+- Verification status: PASS / FAIL / PASS_WITH_MINOR_ISSUES
+- Issues found (if any)
+- Recommendations for fixes (if FAIL)
+```
+
+### Example: Before and After Auto-Injection
+
+**Before Auto-Injection (Task Tree):**
+```json
+{
+  "tasks": [
+    {"id": "root.1.1.1", "description": "Create calculator.py", "agent": "general-purpose", "dependencies": []},
+    {"id": "root.1.1.2", "description": "Create utils.py", "agent": "general-purpose", "dependencies": []},
+    {"id": "root.1.2.1", "description": "Write documentation", "agent": "documentation-expert", "dependencies": ["root.1.1.1", "root.1.1.2"]}
+  ]
+}
+```
+
+**After Auto-Injection:**
+```json
+{
+  "tasks": [
+    {"id": "root.1.1.1", "description": "Create calculator.py", "agent": "general-purpose", "dependencies": []},
+    {"id": "root.1.1.1_verify", "description": "Verify: Create calculator.py", "agent": "task-completion-verifier", "dependencies": ["root.1.1.1"]},
+    {"id": "root.1.1.2", "description": "Create utils.py", "agent": "general-purpose", "dependencies": []},
+    {"id": "root.1.1.2_verify", "description": "Verify: Create utils.py", "agent": "task-completion-verifier", "dependencies": ["root.1.1.2"]},
+    {"id": "root.1.2.1", "description": "Write documentation", "agent": "documentation-expert", "dependencies": ["root.1.1.1_verify", "root.1.1.2_verify"]}
+  ]
+}
+```
+
+**Key Changes:**
+- Two verification phases added (one per implementation phase)
+- Documentation phase now depends on verification phases, not implementation phases
+- Wave scheduling will place verification in wave after implementation
+
+### Integration with Wave Scheduling
+
+After auto-injection, the wave scheduler will automatically place:
+- Implementation phases in Wave N
+- Verification phases in Wave N+1 (or same wave if implementation has no other dependencies)
+- Downstream phases in Wave N+2+
+
+**Example Wave Assignment:**
+```
+Wave 0: root.1.1.1 (Create calculator.py), root.1.1.2 (Create utils.py)
+Wave 1: root.1.1.1_verify (Verify calculator), root.1.1.2_verify (Verify utils)
+Wave 2: root.1.2.1 (Write documentation)
+```
+
+### Skip Verification Conditions
+
+Do NOT inject verification for:
+- Design/planning phases (keywords: design, plan, research, analyze, explore)
+- Documentation phases (keywords: document, write docs, README)
+- Verification phases (already a verification task)
+- Phases explicitly marked as `skip_verification: true`
+
+---
+
 ## Recursive Task Decomposition (Semantic Analysis)
 
 **CRITICAL: NEVER estimate duration, time, or effort. Focus only on dependencies and parallelization.**
@@ -1633,8 +1746,9 @@ Failure to include a valid dependency graph renders the output incomplete and un
 9. **NEVER Estimate Time:** NEVER include duration, time, effort, or time savings in any output
 10. **Task Graph JSON Always:** Always output task graph JSON in code fence for multi-step workflows
 11. **Minimum Decomposition Depth:** Always decompose to at least depth 3 before atomic validation; tasks at depth 0, 1, 2 must never be marked atomic
-12. **Maximize Parallelization:** When subtasks operate on independent resources (different files, modules), assign empty dependencies arrays to enable parallel execution in the same wave; only create sequential dependencies when true data flow or conflicts exist
-13. **No Tool Execution:** NEVER attempt to use Read, Bash, or Write tools - these are blocked for orchestrator
+12. **Auto-Inject Verification:** ALWAYS auto-inject verification phases after implementation phases to ensure quality gates
+13. **Maximize Parallelization:** When subtasks operate on independent resources (different files, modules), assign empty dependencies arrays to enable parallel execution in the same wave; only create sequential dependencies when true data flow or conflicts exist
+14. **No Tool Execution:** NEVER attempt to use Read, Bash, or Write tools - these are blocked for orchestrator
 
 ### Multi-Step Workflows
 
@@ -1667,6 +1781,8 @@ When invoked:
 - ALWAYS use semantic analysis for decomposition, dependencies, and wave scheduling
 - ALWAYS decompose tasks to at least depth 3 before atomic validation
 - NEVER mark tasks at depth 0, 1, or 2 as atomic
+- ALWAYS insert verification phase after each implementation phase (detect using implementation keywords)
+- Verification phases use task-completion-verifier agent and include functionality, edge cases, and error handling checks
 - NEVER attempt to use Read, Bash, or Write tools - these are blocked for orchestrator
 
 ---

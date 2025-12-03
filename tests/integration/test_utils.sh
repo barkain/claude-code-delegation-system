@@ -205,7 +205,7 @@ create_mock_tool_result() {
 
     cat <<EOF
 {
-  "tool": "$tool_name",
+  "tool_name": "$tool_name",
   "status": "$status",
   "session_id": "$session_id",
   "workflow_id": "$workflow_id",

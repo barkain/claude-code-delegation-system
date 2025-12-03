@@ -35,7 +35,7 @@ fi
 TOOL_INPUT=$(cat)
 
 # Extract tool name
-TOOL_NAME=$(echo "$TOOL_INPUT" | jq -r '.tool // empty')
+TOOL_NAME=$(echo "$TOOL_INPUT" | jq -r '.tool_name // empty')
 
 # Only validate Task tool invocations
 if [[ "$TOOL_NAME" != "Task" ]]; then
