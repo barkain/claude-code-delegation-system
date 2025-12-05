@@ -43,6 +43,12 @@
             "command": "hooks/PostToolUse/inject_dag_visualization.sh",
             "timeout": 10,
             "description": "Inject DAG visualization after Task completion"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/PostToolUse/workflow_sync.sh",
+            "timeout": 5,
+            "description": "Sync workflow state after Task completion"
           }
         ]
       },

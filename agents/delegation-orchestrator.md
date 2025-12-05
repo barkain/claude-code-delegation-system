@@ -684,6 +684,126 @@ The main agent is **PROHIBITED** from modifying wave structure, phase order, or 
 
 ---
 
+## Workflow State Initialization
+
+**CRITICAL: For multi-step workflows, initialize persistent workflow state AFTER completing phase analysis and BEFORE returning the recommendation.**
+
+### When to Initialize
+
+Initialize workflow state when:
+- Task analysis determines multi-step workflow (2+ phases)
+- Phase breakdown and dependency analysis are complete
+- Agent assignments for all phases are finalized
+
+Do NOT initialize workflow state for:
+- Single-step tasks (no coordination needed)
+- Read-only analysis tasks (no state persistence needed)
+
+### What to Create
+
+After phase analysis completes, perform these steps in order:
+
+**Step 1: Create workflow.json**
+
+Call `create_workflow_state()` from `utils/workflow_state.py` with the phase breakdown:
+
+```python
+from utils.workflow_state import create_workflow_state
+
+# Extract phase data from your analysis
+phases = [
+    (phase["description"], phase["agent"])
+    for phase in execution_plan["waves"]
+    for phase in wave["phases"]
+]
+
+# Create workflow state - returns workflow_id
+workflow_id = create_workflow_state(
+    task=user_task_description,
+    phases=phases  # list of (title, agent) tuples
+)
+```
+
+This creates `.claude/state/workflow.json` with:
+- Unique workflow ID (format: `wf_YYYYMMDD_HHMMSS`)
+- Original user task
+- All phases with status "pending"
+- First phase marked as "active" with `current_phase` set
+
+**Step 2: Generate WORKFLOW_STATUS.md**
+
+The `create_workflow_state()` function automatically generates `.claude/WORKFLOW_STATUS.md` with:
+- Phase list with checkboxes (`[ ]` pending, `[x]` complete)
+- Current phase indicator
+- Human-readable status overview
+
+**Step 3: Initialize TodoWrite**
+
+Use TodoWrite to create UI task list matching phases:
+
+```python
+# Build TodoWrite items from phases
+todos = [
+    {
+        "content": phase["title"],
+        "status": "in_progress" if i == 0 else "pending",
+        "activeForm": f"Working on {phase['title']}"
+    }
+    for i, phase in enumerate(workflow["phases"])
+]
+
+# Call TodoWrite tool
+TodoWrite(todos=todos)
+```
+
+### State Structure Reference
+
+The workflow.json schema (see `docs/design/WORKFLOW_STATE_SYSTEM.md` section 3):
+
+```json
+{
+  "id": "wf_20250105_143022",
+  "task": "User's original task description",
+  "status": "pending|active|completed|failed",
+  "current_phase": "phase_0",
+  "phases": [
+    {
+      "id": "phase_0",
+      "title": "Phase description",
+      "agent": "agent-name",
+      "status": "pending|active|completed|failed",
+      "deliverables": [],
+      "context_for_next": ""
+    }
+  ]
+}
+```
+
+### Coordination Purpose
+
+Workflow state enables:
+1. **Agent Awareness:** Execution agents can read `workflow.json` to understand their position in the workflow
+2. **Dependency Information:** Agents access context from previous phases via `context_for_next` field
+3. **Progress Reporting:** PostToolUse hook (`workflow_sync.sh`) automatically updates phase status when agents complete
+4. **Human Visibility:** WORKFLOW_STATUS.md provides readable status at any time
+
+### Integration with Recommendation Output
+
+Include workflow initialization in your orchestration output:
+
+```markdown
+### Workflow State Initialized
+
+- **Workflow ID:** wf_20250105_143022
+- **State File:** .claude/state/workflow.json
+- **Status View:** .claude/WORKFLOW_STATUS.md
+- **Phases:** 3 phases initialized (phase_0 active)
+
+Main agent should monitor WORKFLOW_STATUS.md for progress updates.
+```
+
+---
+
 ## ASCII Dependency Graph Visualization
 
 **CRITICAL: DO NOT include time estimates, duration, or effort in output.**
