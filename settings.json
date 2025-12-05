@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/PostToolUse/python_posttooluse_hook.sh"
+            "command": "hooks/PostToolUse/python_posttooluse_hook.sh"
           }
         ]
       },
@@ -29,13 +29,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/PostToolUse/update_wave_state.sh",
+            "command": "hooks/PostToolUse/update_wave_state.sh",
             "timeout": 5,
             "description": "Auto-advance waves when all phases complete"
           },
           {
             "type": "command",
-            "command": ".claude/hooks/PostToolUse/remind_todo_after_task.sh",
+            "command": "hooks/PostToolUse/remind_todo_after_task.sh",
             "timeout": 2
           },
           {
@@ -46,7 +46,7 @@
           },
           {
             "type": "command",
-            "command": "~/.claude/hooks/PostToolUse/workflow_sync.sh",
+            "command": "hooks/PostToolUse/workflow_sync.sh",
             "timeout": 5,
             "description": "Sync workflow state after Task completion"
           }
@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/PostToolUse/validation_gate.sh",
+            "command": "hooks/PostToolUse/validation_gate.sh",
             "timeout": 10
           }
         ]
@@ -68,7 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/Stop/python_stop_hook.sh"
+            "command": "hooks/stop/python_stop_hook.sh"
           }
         ]
       }
@@ -79,19 +79,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/PreToolUse/ensure_workflow_orchestrator.sh",
-            "timeout": 10,
-            "description": "Validate WORKFLOW_ORCHESTRATOR prompt presence and re-inject if missing"
-          },
-          {
-            "type": "command",
-            "command": ".claude/hooks/PreToolUse/validate_task_graph_compliance.sh",
+            "command": "hooks/PreToolUse/validate_task_graph_compliance.sh",
             "timeout": 5,
             "description": "Validate Task invocations against active task graph execution plan"
           },
           {
             "type": "command",
-            "command": ".claude/hooks/PreToolUse/require_delegation.sh",
+            "command": "hooks/PreToolUse/require_delegation.sh",
             "timeout": 5
           }
         ]
@@ -102,7 +96,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh",
+            "command": "hooks/UserPromptSubmit/clear-delegation-sessions.sh",
             "timeout": 2
           }
         ]
@@ -113,7 +107,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/SessionStart/inject_workflow_orchestrator.sh",
+            "command": "hooks/SessionStart/inject_workflow_orchestrator.sh",
             "timeout": 20
           }
         ]
@@ -125,7 +119,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".claude/hooks/SubagentStop/remind_todo_update.sh",
+            "command": "hooks/SubagentStop/remind_todo_update.sh",
             "timeout": 3
           }
         ]
@@ -134,7 +128,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": ".claude/scripts/statusline.sh",
+    "command": "scripts/statusline.sh",
     "padding": 0
   },
   "alwaysThinkingEnabled": true,
