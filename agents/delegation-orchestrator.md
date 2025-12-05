@@ -693,262 +693,236 @@ The main agent is **PROHIBITED** from modifying wave structure, phase order, or 
 ### ASCII Graph Format
 
 Generate terminal-friendly dependency graph showing:
-- Wave assignments (parallel execution groups)
-- Task descriptions
+- Wave assignments with descriptive titles and purpose explanations
+- Detailed task descriptions (2-3 lines explaining deliverables and scope)
 - Agent assignments
-- Dependency relationships
+- Dependency relationships with inline `└─ requires:` format
 
-The system supports two visualization formats:
-
-#### 1. Wide Format (Default - 120+ character terminals)
-
-Uses clean box-drawing characters and side-by-side task layout for parallel tasks.
-
-**Template:**
+**Template Format:**
 ```
-╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║  EXECUTION PLAN                                                                                                       ║
-╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+DEPENDENCY GRAPH & EXECUTION PLAN
+═══════════════════════════════════════════════════════════════════════════════════
 
-┌─ WAVE 0 ──────────────────────────────────────────────────────────────────────────────────────────── 3 parallel ─────┐
-│                                                                                                                        │
-│  ┌──────────────────────────────────────┐  ┌──────────────────────────────────────┐  ┌───────────────────────────────┐ │
-│  │ ● root.1.1   Design data model       │  │ ● root.1.2   Design UI wireframes   │  │ ● root.1.3   Plan tech stack  │ │
-│  │              [tech-lead-architect]   │  │              [tech-lead-architect]   │  │              [tech-lead]      │ │
-│  └──────────────────────────────────────┘  └──────────────────────────────────────┘  └───────────────────────────────┘ │
-│                                                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                               │
-                                                               ▼
-┌─ WAVE 1 ──────────────────────────────────────────────────────────────────────────────────────────── 2 parallel ─────┐
-│                                                                                                                        │
-│  ┌───────────────────────────────────────────────────────┐  ┌──────────────────────────────────────────────────────┐  │
-│  │ ● root.2.1   Implement backend API                    │  │ ● root.2.2   Implement frontend                      │  │
-│  │              [general-purpose]                        │  │              [general-purpose]                       │  │
-│  │              ← root.1.1, root.1.3                     │  │              ← root.1.2, root.1.3                    │  │
-│  └───────────────────────────────────────────────────────┘  └──────────────────────────────────────────────────────┘  │
-│                                                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-                                                               │
-                                                               ▼
-┌─ WAVE 2 ──────────────────────────────────────────────────────────────────────────────────────────── 1 task ─────────┐
-│                                                                                                                        │
-│  ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐  │
-│  │ ● root.3.1   Integration testing                                                    [task-completion-verifier] │  │
-│  │              ← root.2.1, root.2.2                                                                                │  │
-│  └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘  │
-│                                                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+Wave 0: [Descriptive Wave Title]
+  [2-line description explaining wave purpose and context]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-  Summary: 6 tasks │ 3 waves │ Max parallel: 3 │ Sequential bottleneck: root.3.1
-═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-```
+  ┌─ task.id   Task title                                    [agent-name]
+  │             [2-3 line task description explaining deliverables and scope]
+  │
+  │
+  ├─ task.id   Task title                                    [agent-name]
+  │             [2-3 line task description explaining deliverables and scope]
+  │
+  │
+  └─ task.id   Task title                                    [agent-name]
+               [2-3 line task description explaining deliverables and scope]
 
-#### 2. Compact Format (For narrow terminals or preference)
 
-Uses vertical stacking for better readability in 80-column terminals.
+        │
+        ▼
 
-**Template:**
-```
-╭─────────────────────────────────────────────────────────────╮
-│  WAVE 0                                          3 tasks    │
-├─────────────────────────────────────────────────────────────┤
-│  ● root.1.1  Design data model        [tech-lead-architect] │
-│  ● root.1.2  Design UI wireframes     [tech-lead-architect] │
-│  ● root.1.3  Plan tech stack          [tech-lead-architect] │
-╰─────────────────────────────────────────────────────────────╯
-                            │
-                            ▼
-╭─────────────────────────────────────────────────────────────╮
-│  WAVE 1                                          2 tasks    │
-├─────────────────────────────────────────────────────────────┤
-│  ● root.2.1  Implement backend API       [general-purpose]  │
-│              ← root.1.1, root.1.3                           │
-│  ● root.2.2  Implement frontend UI       [general-purpose]  │
-│              ← root.1.2, root.1.3                           │
-╰─────────────────────────────────────────────────────────────╯
-                            │
-                            ▼
-╭─────────────────────────────────────────────────────────────╮
-│  WAVE 2                                          1 task     │
-├─────────────────────────────────────────────────────────────┤
-│  ● root.3.1  Integration testing  [task-completion-verifier]│
-│              ← root.2.1, root.2.2                           │
-╰─────────────────────────────────────────────────────────────╯
+Wave 1: [Descriptive Wave Title]
+  [2-line description explaining wave purpose and context]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-══════════════════════════════════════════════════════════════
- 6 tasks │ 3 waves │ Max parallel: 3
-══════════════════════════════════════════════════════════════
+  ┌─ task.id   Task title                                    [agent-name]
+  │             [2-3 line task description explaining deliverables and scope]
+  │             └─ requires: dependency_id1, dependency_id2
+  │
+  └─ task.id   Task title                                    [agent-name]
+               [2-3 line task description explaining deliverables and scope]
+               └─ requires: dependency_id1
+
+        │
+        ▼
+
+Wave 2: [Descriptive Wave Title]
+  [2-line description explaining wave purpose and context]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  └─ task.id   Task title                                    [agent-name]
+               [2-3 line task description explaining deliverables and scope]
+               └─ requires: dependency_id1, dependency_id2
+
+═══════════════════════════════════════════════════════════════════════════════════
+Summary: N tasks │ M waves │ Max parallel: X │ Critical path: task.id → task.id → task.id
+═══════════════════════════════════════════════════════════════════════════════════
 ```
 
-### Format Selection
+**Complete Example:**
+```
+DEPENDENCY GRAPH & EXECUTION PLAN
+═══════════════════════════════════════════════════════════════════════════════════
 
-**Use Wide Format when:**
-- Terminal width is ≥120 characters
-- Visualizing ≤4 parallel tasks per wave
-- Maximum clarity and visual appeal is desired
+Wave 0: Foundation & Architecture Design
+  Establish the core architectural decisions and data structures that all
+  subsequent implementation work will depend on. No external dependencies.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Use Compact Format when:**
-- Terminal width is <120 characters (e.g., 80 columns)
-- >4 parallel tasks per wave (side-by-side becomes cramped)
-- Simpler, more scannable output is preferred
+  ┌─ root.1.1   Design data model                              [tech-lead-architect]
+  │             Define database schema, entity relationships, and data validation
+  │             rules. Output: ERD diagram and schema migration files.
+  │
+  ├─ root.1.2   Design UI wireframes                           [tech-lead-architect]
+  │             Create low-fidelity wireframes for all user-facing screens.
+  │             Define component hierarchy and user flow diagrams.
+  │
+  └─ root.1.3   Plan tech stack                                [tech-lead-architect]
+               Evaluate and select frameworks, libraries, and infrastructure.
+               Document trade-offs and rationale for each technology choice.
 
-### Generation Algorithm (Wide Format)
+        │
+        ▼
+
+Wave 1: Core Implementation
+  Build the primary application components based on Wave 0 designs.
+  Backend and frontend can proceed in parallel as they share no code dependencies.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─ root.2.1   Implement backend API                          [general-purpose]
+  │             Build RESTful endpoints, business logic, and data access layer.
+  │             Includes authentication middleware and error handling.
+  │             └─ requires: root.1.1, root.1.3
+  │
+  ├─ root.2.2   Implement database layer                       [general-purpose]
+  │             Create ORM models, repositories, and database migrations.
+  │             Set up connection pooling and query optimization.
+  │             └─ requires: root.1.1
+  │
+  └─ root.2.3   Implement frontend UI                          [general-purpose]
+               Build React components, state management, and API integration.
+               Implement responsive design and accessibility features.
+               └─ requires: root.1.2, root.1.3
+
+        │
+        ▼
+
+Wave 2: Integration & Testing
+  Verify all components work together correctly. This wave cannot start
+  until all implementation tasks complete as it tests integrated behavior.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  └─ root.3.1   Integration testing                       [task-completion-verifier]
+               Execute end-to-end test suites covering all user journeys.
+               Validate API contracts, data flow, and error scenarios.
+               └─ requires: root.2.1, root.2.2, root.2.3
+
+═══════════════════════════════════════════════════════════════════════════════════
+Summary: 6 tasks │ 3 waves │ Max parallel: 3 │ Critical path: root.1.1 → root.2.1 → root.3.1
+═══════════════════════════════════════════════════════════════════════════════════
+```
+
+### Generation Guidelines
+
+**Wave Headers:**
+1. **Title:** Use descriptive name (e.g., "Foundation & Architecture Design", "Core Implementation", "Integration & Testing")
+2. **Description:** 2-line explanation of wave purpose, context, and dependencies
+3. **Separator:** Use `━` (U+2501) to create visual separation
+
+**Task Entries:**
+1. **First Line:** `connector task.id   Task title (left-aligned, ~40 chars)   [agent-name] (right-aligned)`
+2. **Description:** 2-3 lines explaining deliverables, scope, and key outputs
+3. **Dependencies:** If dependencies exist, add `└─ requires: dep1, dep2` after description
+4. **Spacing:** Leave blank line between task entries for readability
+
+**Tree Connectors:**
+- First task in wave: `┌─` (top corner)
+- Middle tasks: `├─` (T-junction)
+- Last task in wave: `└─` (bottom corner)
+- Continuation: `│` (vertical line)
+
+**Wave Flow:**
+- Between waves: Center-aligned `│` and `▼` to show vertical progression
+- Spacing: 8 spaces before flow arrows
+
+**Summary Footer:**
+- **Format:** `Summary: N tasks │ M waves │ Max parallel: X │ Critical path: task.id → task.id`
+- **Critical Path:** Show longest dependency chain (e.g., `root.1.1 → root.2.1 → root.3.1`)
+- **Separator:** Use `═` (U+2550) for top and bottom borders
+
+### Generation Algorithm
 
 ```python
 # For each wave in execution_plan
 for wave_num, wave_data in enumerate(execution_plan):
     tasks = wave_data["tasks"]
-    task_count = len(tasks)
-
-    # Print wave header with box
-    border_top = f"┌─ WAVE {wave_num} " + "─" * (110 - len(f"WAVE {wave_num}")) + f" {task_count} parallel " + "─" * 5 + "┐"
-    print(border_top)
-    print("│" + " " * 118 + "│")
-
-    # Render tasks side-by-side (max 3 columns)
-    if task_count == 1:
-        # Single task - full width
-        task = tasks[0]
-        task_id = task["id"]
-        desc = task["description"]
-        agent = task["agent"]
-        deps = task.get("dependencies", [])
-
-        task_box = f"│  ┌{'─' * 108}┐  │"
-        print(task_box)
-        print(f"│  │ ● {task_id:<12} {desc:<80} [{agent}] │  │")
-        if deps:
-            dep_str = ", ".join(deps)
-            print(f"│  │              ← {dep_str:<90} │  │")
-        print(f"│  └{'─' * 108}┘  │")
-    else:
-        # Multiple tasks - side by side
-        col_width = 36
-        spacing = 2
-
-        # Build task boxes
-        task_boxes = []
-        for task in tasks:
-            task_id = task["id"]
-            desc = task["description"][:col_width - 18]
-            agent = task["agent"][:col_width - 4]
-            deps = task.get("dependencies", [])
-
-            box = [
-                f"┌{'─' * (col_width - 2)}┐",
-                f"│ ● {task_id:<10} {desc:<(col_width - 16)} │",
-                f"│              [{agent:<(col_width - 18)}] │"
-            ]
-            if deps:
-                dep_str = ", ".join(deps)[:col_width - 18]
-                box.append(f"│              ← {dep_str:<(col_width - 18)} │")
-            box.append(f"└{'─' * (col_width - 2)}┘")
-            task_boxes.append(box)
-
-        # Print boxes side-by-side
-        max_height = max(len(b) for b in task_boxes)
-        for i in range(max_height):
-            line = "│  "
-            for box in task_boxes:
-                if i < len(box):
-                    line += box[i]
-                else:
-                    line += " " * col_width
-                line += "  "
-            line += " │"
-            print(line)
-
-    print("│" + " " * 118 + "│")
-    print("└" + "─" * 118 + "┘")
-
-    # Print wave separator (vertical flow)
-    if wave_num < len(execution_plan) - 1:
-        print(" " * 59 + "│")
-        print(" " * 59 + "▼")
-
-# Print summary footer
-print()
-print("═" * 120)
-summary = f"  Summary: {total_tasks} tasks │ {total_waves} waves │ Max parallel: {max_parallel}"
-if bottleneck:
-    summary += f" │ Sequential bottleneck: {bottleneck}"
-print(summary)
-print("═" * 120)
-```
-
-### Generation Algorithm (Compact Format)
-
-```python
-# For each wave in execution_plan
-for wave_num, wave_data in enumerate(execution_plan):
-    tasks = wave_data["tasks"]
-    task_count = len(tasks)
+    wave_title = wave_data["title"]  # e.g., "Foundation & Architecture Design"
+    wave_desc = wave_data["description"]  # 2-line purpose description
 
     # Print wave header
-    print(f"╭{'─' * 61}╮")
-    print(f"│  WAVE {wave_num}{' ' * (35 - len(str(wave_num)))}{task_count} tasks    │")
-    print(f"├{'─' * 61}┤")
+    print("\nDEPENDENCY GRAPH & EXECUTION PLAN" if wave_num == 0 else "")
+    print("═" * 87 if wave_num == 0 else "")
+    print()
+    print(f"Wave {wave_num}: {wave_title}")
+    print(f"  {wave_desc}")
+    print("━" * 87)
+    print()
 
     # Print each task
-    for task in tasks:
+    for i, task in enumerate(tasks):
         task_id = task["id"]
-        desc = task["description"][:30]
-        agent = task["agent"][:18]
+        title = task["title"]
+        agent = task["agent"]
+        description_lines = task["description"].split("\n")  # 2-3 lines
         deps = task.get("dependencies", [])
 
-        # Task line
-        print(f"│  ● {task_id:<10} {desc:<30} [{agent}] │")
+        # Determine tree connector
+        if i == 0:
+            connector = "┌─"
+        elif i == len(tasks) - 1:
+            connector = "└─"
+        else:
+            connector = "├─"
 
-        # Dependencies (if any)
+        # Print task header line
+        print(f"  {connector} {task_id:<12} {title:<50} [{agent}]")
+
+        # Print description lines (indented)
+        for desc_line in description_lines:
+            print(f"  │             {desc_line}")
+
+        # Print dependencies if present
         if deps:
-            dep_str = ", ".join(deps)[:50]
-            print(f"│              ← {dep_str:<45} │")
+            dep_str = ", ".join(deps)
+            print(f"  │             └─ requires: {dep_str}")
 
-    print(f"╰{'─' * 61}╯")
+        # Blank line between tasks (except for last task)
+        if i < len(tasks) - 1:
+            print("  │")
+
+    print()
 
     # Print wave separator (vertical flow)
     if wave_num < len(execution_plan) - 1:
-        print(" " * 30 + "│")
-        print(" " * 30 + "▼")
+        print("        │")
+        print("        ▼")
+        print()
 
 # Print summary footer
-print()
-print("═" * 64)
-summary = f" {total_tasks} tasks │ {total_waves} waves │ Max parallel: {max_parallel}"
-print(summary)
-print("═" * 64)
+print("═" * 87)
+critical_path = " → ".join(critical_path_ids)
+print(f"Summary: {total_tasks} tasks │ {total_waves} waves │ Max parallel: {max_parallel} │ Critical path: {critical_path}")
+print("═" * 87)
 ```
+
+### Key Enhancements
+
+1. **Wave Context:** Each wave has descriptive title and 2-line purpose explanation
+2. **Detailed Descriptions:** Tasks include 2-3 lines explaining deliverables and scope
+3. **Inline Dependencies:** Dependencies shown with `└─ requires:` on line after description
+4. **Visual Hierarchy:** Clear wave sections with `━` separators
+5. **Critical Path:** Summary includes longest dependency chain
+6. **Vertical Layout:** Original tree structure preserved (no side-by-side boxes)
+7. **Professional Appearance:** Clean, scannable layout for terminal output
 
 ### Box Drawing Characters Reference
 
-**For Wide Format:**
-- Corners: ┌ ┐ └ ┘
-- Lines: │ (vertical), ─ (horizontal)
-- Double lines: ═ (for major sections)
-- Flow: ▼ (downward), ► (forward)
-- Status: ● (task marker)
-- Dependency: ← (depends on)
-
-**For Compact Format:**
-- Rounded corners: ╭ ╮ ╰ ╯
-- Lines: │ (vertical), ─ (horizontal)
-- Separators: ├ ┤ (T-junctions for dividers)
-- Double lines: ═ (for summary footer)
-- Flow: ▼ (downward)
-- Status: ● (task marker)
-- Dependency: ← (depends on)
-
-### Key Improvements
-
-1. **Cleaner Layout:** Uses modern box-drawing characters consistently
-2. **Better Readability:** Clear visual hierarchy with bold sections
-3. **Professional Appearance:** Inspired by cargo, npm, and modern CLI tools
-4. **Format Flexibility:** Two formats for different terminal widths
-5. **Consistent Spacing:** Proper alignment and padding throughout
-6. **Visual Flow:** Clear arrows showing wave progression
-7. **Compact Summary:** Essential metrics in footer without clutter
+- **Tree connectors:** `┌─` (top), `├─` (middle), `└─` (bottom), `│` (vertical)
+- **Wave separator:** `━` (horizontal bold line)
+- **Section separator:** `═` (double horizontal line)
+- **Flow arrows:** `│` (down), `▼` (downward arrow)
+- **Dependency prefix:** `└─ requires:`
 
 ---
 
