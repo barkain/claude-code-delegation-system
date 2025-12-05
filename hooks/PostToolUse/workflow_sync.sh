@@ -87,9 +87,9 @@ except Exception as e:
     # - Updating workflow status
     # - Regenerating WORKFLOW_STATUS.md
 
-    local utils_dir="$PROJECT_DIR/utils"
-    if [ ! -f "$utils_dir/workflow_state.py" ]; then
-        debug_log "Warning: workflow_state.py not found at $utils_dir"
+    local scripts_dir="$PROJECT_DIR/scripts"
+    if [ ! -f "$scripts_dir/workflow_state.py" ]; then
+        debug_log "Warning: workflow_state.py not found at $scripts_dir"
         exit 0
     fi
 
@@ -98,7 +98,7 @@ except Exception as e:
     # Call Python module to update phase status
     python3 - <<EOF
 import sys
-sys.path.insert(0, '$utils_dir')
+sys.path.insert(0, '$scripts_dir')
 
 try:
     from workflow_state import update_phase_status

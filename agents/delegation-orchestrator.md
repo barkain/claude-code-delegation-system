@@ -705,10 +705,10 @@ After phase analysis completes, perform these steps in order:
 
 **Step 1: Create workflow.json**
 
-Call `create_workflow_state()` from `utils/workflow_state.py` with the phase breakdown:
+Call `create_workflow_state()` from `scripts/workflow_state.py` with the phase breakdown:
 
 ```python
-from utils.workflow_state import create_workflow_state
+from scripts.workflow_state import create_workflow_state
 
 # Extract phase data from your analysis
 phases = [
