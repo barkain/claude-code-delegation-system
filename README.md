@@ -4,7 +4,7 @@ A hook-based framework for Claude Code that enforces task delegation to speciali
 
 See the delegation system in action:
 
-<img src="./assets/workflow-example.gif" alt="Workflow Demo" width="800">
+<img src="./assets/workflow-demo-720p-x10.gif" alt="Workflow Demo" width="800">
 
 ## Overview
 
