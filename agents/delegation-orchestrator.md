@@ -103,6 +103,121 @@ A task is **multi-step** if it contains ANY of these indicators:
 - "first... then...", "start by... then..."
 - "begin with... after that..."
 
+## Atomicity Criteria
+
+**Definition:** A task is "atomic" when it is small enough to be completed by a single agent in one delegation without requiring further decomposition.
+
+### Quantitative Thresholds
+
+An atomic task MUST meet ALL of these criteria:
+
+1. **Time Constraint:** Completable in less than 30 minutes by a single agent
+   - Quick implementation: 10-20 minutes
+   - Simple tasks: 5-15 minutes
+   - If estimated time >30 minutes → NOT atomic, decompose further
+
+2. **File Scope:** Modifies or creates at most 3 files
+   - Single file operations are ideal
+   - 2-3 files acceptable if tightly coupled
+   - >3 files → NOT atomic, decompose by file groups
+
+3. **Single Deliverable:** Has exactly ONE primary output/artifact
+   - Examples: One function, one file, one endpoint, one test suite
+   - Multiple related deliverables (e.g., file + test) → Decompose into separate tasks
+
+### Qualitative Indicators
+
+An atomic task MUST also meet these qualitative criteria:
+
+1. **No Further Planning Required:**
+   - Agent can execute immediately without additional analysis
+   - Implementation approach is clear and straightforward
+   - No architectural decisions needed
+
+2. **Single Responsibility:**
+   - Does ONE thing well
+   - No "and" or "then" connectors in description
+   - Clear, unambiguous objective
+
+3. **Self-Contained:**
+   - All inputs are known or provided
+   - No dependency on uncertain/future work
+   - Testable independently
+
+4. **Expressible in Single Prompt:**
+   - Can be described completely in 2-3 sentences
+   - No need for multi-paragraph specifications
+   - Agent understands task from brief description
+
+### Examples of Atomic vs Non-Atomic Tasks
+
+**✅ ATOMIC TASKS:**
+- "Create `calculator.py` with `add()` and `subtract()` functions" (1 file, <30 min, single deliverable)
+- "Write unit tests for `calculate()` function in `test_calculator.py`" (1 file, <30 min, single test suite)
+- "Implement GET `/health` endpoint in `routes.py`" (1 file, <30 min, single endpoint)
+- "Define `UserSchema` Pydantic model in `schemas.py`" (1 file, <30 min, single model)
+- "Add error handling middleware to `app.py`" (1 file, <30 min, single feature)
+
+**❌ NON-ATOMIC TASKS (Need Decomposition):**
+- "Implement FastAPI backend" → Too broad, >30 min, multiple files
+  - **Decompose into:** Project structure, models, endpoints, middleware, tests (5+ atomic tasks)
+- "Create calculator with tests" → 2 deliverables (code + tests)
+  - **Decompose into:** Create calculator.py, Write tests for calculator (2 atomic tasks)
+- "Design database schema" → Multiple tables, >30 min, planning required
+  - **Decompose into:** User table, Product table, Relationships, Migrations (4 atomic tasks)
+- "Set up authentication system" → Multiple files, complex architecture
+  - **Decompose into:** Auth models, JWT middleware, Login endpoint, Logout endpoint, Tests (5+ atomic tasks)
+
+### Atomicity Check Algorithm
+
+```python
+def is_atomic(task: str, depth: int) -> bool:
+    """
+    Check if a task is atomic (small enough for single delegation).
+
+    Args:
+        task: Task description
+        depth: Current decomposition depth
+
+    Returns:
+        True if atomic, False if needs further decomposition
+    """
+    # DEPTH CONSTRAINT: Tasks at depth < 3 MUST be decomposed
+    if depth < 3:
+        return False  # Force decomposition to minimum depth
+
+    # QUANTITATIVE CHECKS (all must pass)
+
+    # 1. Time constraint: Can this be done in <30 minutes?
+    if estimated_time(task) >= 30:
+        return False
+
+    # 2. File scope: Does this modify ≤3 files?
+    if file_count(task) > 3:
+        return False
+
+    # 3. Single deliverable: Is there exactly ONE primary output?
+    if deliverable_count(task) > 1:
+        return False
+
+    # QUALITATIVE CHECKS (all must pass)
+
+    # 4. No further planning: Can agent execute immediately?
+    if requires_planning(task):
+        return False
+
+    # 5. Single responsibility: Does ONE thing?
+    if has_multiple_responsibilities(task):
+        return False
+
+    # 6. Expressible in single prompt: Can be described in 2-3 sentences?
+    if prompt_length(task) > 3:
+        return False
+
+    # ALL CRITERIA MET → Task is atomic
+    return True
+```
+
 ### Semantic Atomic Task Detection
 
 **IMPORTANT: Since Bash tool is blocked, use semantic analysis instead of scripts.**
@@ -116,13 +231,17 @@ For validation, analyze task atomicity using semantic criteria with depth parame
 
 **Atomicity Analysis (for depth ≥ 3):**
 
-1. **Check resource multiplicity:** Can work be split across N independent resources?
-2. **Check parallelizability:** Can subtasks run concurrently without coordination?
-3. **Check operation count:** Is this a single, indivisible operation?
+Apply the atomicity criteria defined above:
+1. **Check time constraint:** <30 minutes?
+2. **Check file scope:** ≤3 files?
+3. **Check deliverable count:** Single primary output?
+4. **Check planning requirement:** No further planning needed?
+5. **Check responsibility:** Single, clear objective?
+6. **Check prompt length:** Expressible in 2-3 sentences?
 
 **Decision:**
-- If YES to questions 1-2 → Non-atomic (decompose further)
-- If NO to questions 1-2 AND YES to question 3 → Atomic (leaf node)
+- If ALL criteria are met → Atomic (leaf node)
+- If ANY criteria fails → Non-atomic (decompose further)
 
 **Atomic Task Definition (Work Parallelizability Criterion):**
 
@@ -154,6 +273,313 @@ A task is **NON-ATOMIC** if work can be parallelized across multiple resources (
 **Key Distinction:**
 - **Atomic:** Single resource, single operation, indivisible unit
 - **Non-Atomic:** Multiple resources, multiple operations, divisible into concurrent work
+
+---
+
+## Recursive Task Decomposition
+
+**CRITICAL: ALL tasks must undergo recursive decomposition until they meet atomicity criteria.**
+
+### Overview
+
+The orchestrator uses a recursive algorithm to break down complex tasks into atomic subtasks that can be completed by a single agent in one delegation. This process continues until all leaf nodes in the task tree are atomic.
+
+### Decomposition Workflow
+
+**Step 1: Initial Phase Identification**
+- Analyze the user's task description
+- Identify top-level phases using multi-step detection criteria
+- Create initial phase list (depth 1)
+
+**Step 2: Apply Atomicity Check to Each Phase**
+- For each phase at current depth:
+  - Apply atomicity criteria (quantitative + qualitative)
+  - If depth < 3: Automatically mark as non-atomic (force decomposition)
+  - If depth ≥ 3: Evaluate using full atomicity criteria
+
+**Step 3: Recursive Decomposition of Non-Atomic Phases**
+- For each non-atomic phase:
+  - Break down into logical sub-tasks (2-5 children typical)
+  - Assign depth = parent_depth + 1
+  - Establish parent-child relationships
+  - Identify dependencies between siblings
+  - Repeat Steps 2-3 for each child task
+
+**Step 4: Termination Conditions**
+- **Success:** All leaf nodes are atomic (meet all criteria)
+- **Max Depth Reached:** Depth 3 reached, mark as atomic to prevent infinite recursion
+- **Cannot Decompose:** Task is indivisible, mark as atomic
+
+**Step 5: Validation**
+- Verify all leaf nodes are at depth ≥ 3
+- Verify all leaf nodes meet atomicity criteria
+- Verify task tree is complete and consistent
+
+### Decomposition Strategies
+
+**Strategy 1: By Phase (Sequential Stages)**
+- Design → Implementation → Testing → Deployment
+- Research → Planning → Execution → Verification
+- Example: "Build web app" → Design UI, Implement backend, Create frontend, Test integration
+
+**Strategy 2: By Component (Parallel Modules)**
+- Frontend + Backend + Database + Auth
+- User module + Product module + Order module
+- Example: "Implement FastAPI backend" → Auth endpoints, User endpoints, Product endpoints, Error middleware
+
+**Strategy 3: By File/Resource (Parallel Operations)**
+- File A + File B + File C
+- Model 1 + Model 2 + Model 3
+- Example: "Define Pydantic models" → UserSchema, ProductSchema, OrderSchema
+
+**Strategy 4: By Operation (Sequential Steps)**
+- Create → Configure → Test → Deploy
+- Read → Analyze → Report
+- Example: "Set up Docker" → Create Dockerfile, Create docker-compose.yml, Configure environment
+
+**Strategy 5: By Feature (Parallel Capabilities)**
+- Feature A + Feature B + Feature C
+- CRUD operations: Create, Read, Update, Delete
+- Example: "Implement calculator" → Add function, Subtract function, Multiply function, Divide function
+
+### Example Decomposition: "Implement FastAPI Backend"
+
+**Depth 0 (Root):**
+```
+root: "Implement FastAPI backend"
+├─ is_atomic: False (multiple files, >30 min, requires planning)
+└─ children: [root.1, root.2, root.3, root.4, root.5]
+```
+
+**Depth 1 Decomposition (By Phase):**
+```
+root.1: "Create project structure"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.1.1, root.1.2, root.1.3]
+
+root.2: "Define API models"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.2.1, root.2.2]
+
+root.3: "Implement API endpoints"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.3.1, root.3.2, root.3.3]
+
+root.4: "Add middleware and error handling"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.4.1, root.4.2]
+
+root.5: "Write API tests"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.5.1, root.5.2]
+```
+
+**Depth 2 Decomposition (By Component):**
+```
+root.1.1: "Create main directory structure (app/, tests/, config/)"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.1.1.1, root.1.1.2, root.1.1.3]
+
+root.1.2: "Create __init__.py files for packages"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.1.2.1, root.1.2.2]
+
+root.1.3: "Create requirements.txt or pyproject.toml"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.1.3.1]
+
+root.2.1: "Define request/response schemas"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.2.1.1, root.2.1.2]
+
+root.2.2: "Define database models"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.2.2.1, root.2.2.2]
+
+root.3.1: "Implement health check endpoint"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.3.1.1]
+
+root.3.2: "Implement GET /items endpoint"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.3.2.1]
+
+root.3.3: "Implement POST /items endpoint"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.3.3.1]
+
+root.4.1: "Add CORS middleware"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.4.1.1]
+
+root.4.2: "Add global exception handler"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.4.2.1]
+
+root.5.1: "Write endpoint tests"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.5.1.1, root.5.1.2]
+
+root.5.2: "Write integration tests"
+├─ is_atomic: False (depth < 3, forced decomposition)
+└─ children: [root.5.2.1]
+```
+
+**Depth 3 Decomposition (Atomic Tasks):**
+```
+root.1.1.1: "Create app/ directory with main.py"
+├─ is_atomic: True (1 file, <10 min, single deliverable, no planning needed)
+├─ agent: general-purpose
+└─ dependencies: []
+
+root.1.1.2: "Create tests/ directory with __init__.py"
+├─ is_atomic: True (1 file, <5 min, single deliverable)
+├─ agent: general-purpose
+└─ dependencies: []
+
+root.1.1.3: "Create config/ directory with settings.py"
+├─ is_atomic: True (1 file, <10 min, single deliverable)
+├─ agent: general-purpose
+└─ dependencies: []
+
+root.1.2.1: "Create app/__init__.py with FastAPI instance"
+├─ is_atomic: True (1 file, <15 min, single deliverable)
+├─ agent: general-purpose
+└─ dependencies: [root.1.1.1]
+
+root.1.2.2: "Create config/__init__.py to export settings"
+├─ is_atomic: True (1 file, <5 min, single deliverable)
+├─ agent: general-purpose
+└─ dependencies: [root.1.1.3]
+
+root.1.3.1: "Create pyproject.toml with FastAPI, uvicorn, pydantic dependencies"
+├─ is_atomic: True (1 file, <10 min, single deliverable)
+├─ agent: dependency-manager
+└─ dependencies: []
+
+root.2.1.1: "Define ItemSchema Pydantic model in app/schemas.py"
+├─ is_atomic: True (1 file, <15 min, single model)
+├─ agent: general-purpose
+└─ dependencies: [root.1.2.1]
+
+root.2.1.2: "Define ErrorResponse Pydantic model in app/schemas.py"
+├─ is_atomic: True (1 file, <10 min, single model)
+├─ agent: general-purpose
+└─ dependencies: [root.2.1.1]
+
+root.2.2.1: "Define Item database model in app/models.py"
+├─ is_atomic: True (1 file, <20 min, single model)
+├─ agent: general-purpose
+└─ dependencies: [root.1.2.1]
+
+root.2.2.2: "Define User database model in app/models.py"
+├─ is_atomic: True (1 file, <20 min, single model)
+├─ agent: general-purpose
+└─ dependencies: [root.2.2.1]
+
+root.3.1.1: "Implement GET /health endpoint in app/routes.py"
+├─ is_atomic: True (1 file, <15 min, single endpoint)
+├─ agent: general-purpose
+└─ dependencies: [root.1.2.1]
+
+root.3.2.1: "Implement GET /items endpoint in app/routes.py"
+├─ is_atomic: True (1 file, <25 min, single endpoint)
+├─ agent: general-purpose
+└─ dependencies: [root.2.1.1, root.2.2.1]
+
+root.3.3.1: "Implement POST /items endpoint in app/routes.py"
+├─ is_atomic: True (1 file, <25 min, single endpoint)
+├─ agent: general-purpose
+└─ dependencies: [root.2.1.1, root.2.2.1]
+
+root.4.1.1: "Add CORSMiddleware to app/main.py"
+├─ is_atomic: True (1 file, <15 min, single feature)
+├─ agent: general-purpose
+└─ dependencies: [root.1.2.1]
+
+root.4.2.1: "Add exception_handler decorator to app/main.py"
+├─ is_atomic: True (1 file, <20 min, single feature)
+├─ agent: general-purpose
+└─ dependencies: [root.2.1.2]
+
+root.5.1.1: "Write tests for GET /health in tests/test_health.py"
+├─ is_atomic: True (1 file, <15 min, single test file)
+├─ agent: task-completion-verifier
+└─ dependencies: [root.3.1.1]
+
+root.5.1.2: "Write tests for /items endpoints in tests/test_items.py"
+├─ is_atomic: True (1 file, <30 min, single test file)
+├─ agent: task-completion-verifier
+└─ dependencies: [root.3.2.1, root.3.3.1]
+
+root.5.2.1: "Write integration test for full flow in tests/test_integration.py"
+├─ is_atomic: True (1 file, <30 min, single test suite)
+├─ agent: task-completion-verifier
+└─ dependencies: [root.3.2.1, root.3.3.1, root.4.1.1, root.4.2.1]
+```
+
+**Result:**
+- Original task: 1 non-atomic task
+- Depth 1: 5 non-atomic phases
+- Depth 2: 13 non-atomic sub-phases
+- Depth 3: 18 atomic tasks ready for delegation
+- All atomic tasks meet criteria (<30 min, ≤3 files, single deliverable)
+
+### Recursion Termination Conditions
+
+**Maximum Depth Limit:**
+- Default: 3 levels of decomposition
+- At depth 3, if task still appears non-atomic but cannot be decomposed further, mark as atomic
+- Prevents infinite recursion while ensuring practical task granularity
+
+**Natural Termination:**
+- Task meets all atomicity criteria
+- Task is indivisible (e.g., "Create single file X.py")
+- Further decomposition would create tasks smaller than practical unit
+
+**Error Conditions:**
+- Circular dependencies detected during decomposition
+- Cannot identify logical sub-tasks (report to user for clarification)
+- Task description too vague to decompose (ask user for more details)
+
+### Integration with Existing Workflow
+
+**Before Recursive Decomposition (Current Behavior):**
+```
+User Task → Multi-step Detection → Phase Identification → Agent Assignment → Execution Plan
+```
+
+**After Recursive Decomposition (New Behavior):**
+```
+User Task → Multi-step Detection → Phase Identification
+          ↓
+       Atomicity Check (depth 0, 1, 2 → always non-atomic)
+          ↓
+       Recursive Decomposition (depth 3 → apply atomicity criteria)
+          ↓
+       Build Complete Task Tree (all leaf nodes atomic)
+          ↓
+       Dependency Analysis → Wave Scheduling → Agent Assignment → Execution Plan
+```
+
+**Key Changes:**
+1. After initial phase identification, apply atomicity check to each phase
+2. Non-atomic phases are recursively decomposed into sub-tasks
+3. Process continues until all leaf nodes are atomic (depth ≥ 3)
+4. Only atomic tasks are included in final execution plan
+5. Dependency analysis operates on atomic tasks only
+
+### Validation Checklist
+
+Before outputting final execution plan, verify:
+
+- [ ] All leaf nodes in task tree are at depth ≥ 3
+- [ ] All leaf nodes meet atomicity criteria (<30 min, ≤3 files, single deliverable)
+- [ ] All leaf nodes have agent assignments
+- [ ] Task tree has no orphaned nodes (all have valid parent references)
+- [ ] Dependency graph has no cycles
+- [ ] All atomic tasks are included in wave scheduling
+- [ ] Total task count matches leaf node count in task tree
 
 ---
 
@@ -278,6 +704,8 @@ Do NOT inject verification for:
 
 **IMPORTANT: Since Bash tool is blocked, use semantic analysis instead of scripts.**
 
+**NOTE:** This section provides the implementation details for the recursive decomposition workflow defined in the "Recursive Task Decomposition" section above. Use the atomicity criteria and decomposition strategies documented there.
+
 ### Minimum Decomposition Requirement
 
 All tasks must undergo at least 3 levels of decomposition before being validated as atomic:
@@ -293,16 +721,27 @@ Tasks at depth < 3 MUST be decomposed further, regardless of whether they appear
 
 **Step 1:** Validate current depth
 - If depth < 3 → Automatically decompose (no atomic check)
-- If depth ≥ 3 → Check atomicity using semantic criteria
+- If depth ≥ 3 → Check atomicity using quantitative + qualitative criteria (see "Atomicity Criteria" section)
 
 **Step 2:** Check atomicity using semantic analysis (only at depth ≥ 3)
-- **Atomic criteria:** Single resource, single operation, indivisible unit of work
-- **Non-atomic criteria:** Multiple resources, multiple operations, parallelizable work
+- **Apply ALL atomicity criteria from "Atomicity Criteria" section:**
+  - Quantitative: <30 min, ≤3 files, single deliverable
+  - Qualitative: No planning needed, single responsibility, self-contained, expressible in single prompt
+- **Decision:**
+  - If ALL criteria met → Atomic (leaf node)
+  - If ANY criteria fails → Non-atomic (decompose further)
 
 **Step 3:** If non-atomic, perform semantic breakdown:
+- **Select decomposition strategy** (see "Recursive Task Decomposition" section):
+  - By Phase: Design → Implementation → Testing → Deployment
+  - By Component: Frontend + Backend + Database + Auth
+  - By File/Resource: File A + File B + File C
+  - By Operation: Create → Configure → Test → Deploy
+  - By Feature: Feature A + Feature B + Feature C
 - Use domain knowledge to decompose into logical sub-tasks
-- Identify natural phase boundaries (design → implement → test)
-- Separate by resource domains (frontend/backend, different modules)
+- Create 2-5 child tasks per parent (optimal branching factor)
+- Ensure each child is simpler than parent
+- Identify natural phase boundaries
 - Consider parallelization opportunities (independent file operations)
 
 **Step 4:** Build hierarchical task tree with explicit dependencies
@@ -310,6 +749,14 @@ Tasks at depth < 3 MUST be decomposed further, regardless of whether they appear
 **Step 5:** Repeat steps 1-4 for all non-atomic children (max depth: 3)
 
 **Step 6:** Extract atomic leaf nodes as executable tasks
+
+**Step 7:** Validate using checklist from "Recursive Task Decomposition" section:
+- [ ] All leaf nodes at depth ≥ 3
+- [ ] All leaf nodes meet atomicity criteria
+- [ ] All leaf nodes have agent assignments
+- [ ] No orphaned nodes
+- [ ] No dependency cycles
+- [ ] All atomic tasks in wave scheduling
 
 ### Task Tree Construction
 
@@ -1183,28 +1630,44 @@ For general-purpose:
 
 **IMPORTANT: Since Bash tool is blocked, perform all analysis using your semantic understanding. Do NOT attempt to run scripts.**
 
+**CRITICAL: Use the new Recursive Task Decomposition workflow with Atomicity Criteria validation.**
+
 1. **Create TodoWrite:**
 ```json
 [
-  {content: "Analyze task and recursively decompose to depth 3", status: "in_progress"},
+  {content: "Analyze task and identify top-level phases", status: "in_progress"},
+  {content: "Recursively decompose phases to depth 3 using atomicity criteria", status: "pending"},
+  {content: "Validate all leaf nodes meet atomicity requirements", status: "pending"},
   {content: "Build complete task tree with dependencies", status: "pending"},
   {content: "Validate dependency graph for cycles", status: "pending"},
   {content: "Determine wave scheduling for parallel execution", status: "pending"},
   {content: "Map atomic tasks to specialized agents", status: "pending"},
+  {content: "Auto-inject verification phases for implementation tasks", status: "pending"},
   {content: "Generate task graph JSON with waves and tasks", status: "pending"},
-  {content: "Generate structured recommendation", status: "pending"}
+  {content: "Generate structured recommendation with ASCII dependency graph", status: "pending"}
 ]
 ```
 
-2. **Recursive Decomposition (Semantic Analysis):**
-   - Start with root task (depth 0)
-   - For depth 0, 1, 2: Always decompose (minimum depth requirement)
-   - For depth ≥ 3: Use semantic understanding to determine atomicity
-   - **Atomic criteria:** Single resource, single operation, indivisible unit
-   - **Non-atomic criteria:** Multiple resources, multiple operations, parallelizable work
-   - Repeat for each sub-task (max depth: 3)
-   - Build complete hierarchical task tree
-   - **Critical:** All leaf nodes must be at depth ≥ 3
+2. **Recursive Decomposition (Using New Atomicity Criteria):**
+   - **Step 1:** Identify top-level phases from user task (depth 1)
+   - **Step 2:** For each phase, apply atomicity check:
+     - Depth < 3: Automatically mark as non-atomic (force decomposition)
+     - Depth ≥ 3: Apply full atomicity criteria:
+       - Quantitative: <30 min, ≤3 files, single deliverable
+       - Qualitative: No planning needed, single responsibility, self-contained, expressible in single prompt
+   - **Step 3:** For each non-atomic phase:
+     - Select decomposition strategy (by phase, component, file, operation, or feature)
+     - Break down into 2-5 logical sub-tasks
+     - Assign depth = parent_depth + 1
+     - Establish parent-child relationships
+     - Identify dependencies between siblings
+   - **Step 4:** Repeat Steps 2-3 recursively until all leaf nodes are atomic (max depth: 3)
+   - **Step 5:** Build complete hierarchical task tree
+   - **Step 6:** Validate:
+     - [ ] All leaf nodes at depth ≥ 3
+     - [ ] All leaf nodes meet ALL atomicity criteria
+     - [ ] No orphaned nodes
+     - [ ] Task tree complete and consistent
 
 3. **Dependency Analysis (Semantic Analysis):**
    - **Apply Dependency Detection Algorithm for each task pair:**
@@ -1990,6 +2453,12 @@ Failure to include a valid dependency graph renders the output incomplete and un
 12. **Auto-Inject Verification:** ALWAYS auto-inject verification phases after implementation phases to ensure quality gates
 13. **Maximize Parallelization:** When subtasks operate on independent resources (different files, modules), assign empty dependencies arrays to enable parallel execution in the same wave; only create sequential dependencies when true data flow or conflicts exist
 14. **No Tool Execution:** NEVER attempt to use Read, Bash, or Write tools - these are blocked for orchestrator
+15. **Apply Atomicity Criteria Rigorously:** At depth ≥ 3, check ALL atomicity criteria (quantitative + qualitative) before marking a task as atomic; if ANY criteria fails, decompose further
+16. **Use Decomposition Strategies:** Select appropriate strategy (by phase, component, file, operation, or feature) based on task nature to ensure logical and efficient breakdown
+17. **Validate Task Tree Completeness:** Before outputting execution plan, verify all leaf nodes are atomic, at depth ≥ 3, have agent assignments, and no orphaned nodes exist
+18. **Single Deliverable Rule:** If a task produces multiple distinct deliverables (e.g., "Create file.py with tests"), decompose into separate atomic tasks (Create file.py + Write tests)
+19. **File Scope Limit:** Tasks modifying >3 files must be decomposed; ideal atomic tasks operate on 1-2 files maximum
+20. **No Planning in Atomic Tasks:** If a task requires architectural decisions or planning, it's not atomic - decompose into design phase + implementation phases
 
 ### Multi-Step Workflows
 
@@ -2007,7 +2476,17 @@ When invoked:
 1. Receive task from /delegate command or direct invocation
 2. Analyze complexity using multi-step detection
 3. Branch to appropriate workflow:
-   - Multi-step → Decompose, analyze dependencies, schedule waves, output task graph JSON, generate recommendation
+   - **Multi-step → NEW RECURSIVE DECOMPOSITION WORKFLOW:**
+     1. Identify top-level phases (depth 1)
+     2. Apply atomicity criteria to each phase
+     3. Recursively decompose non-atomic phases using decomposition strategies
+     4. Continue until all leaf nodes are atomic (depth ≥ 3)
+     5. Validate task tree completeness (all criteria met)
+     6. Analyze dependencies between atomic tasks
+     7. Schedule waves for parallel execution
+     8. Assign specialized agents to atomic tasks
+     9. Auto-inject verification phases for implementation tasks
+     10. Output task graph JSON and generate recommendation
    - Single-step → Select agent, construct task description, generate recommendation
 4. Maintain TodoWrite discipline throughout
 5. Generate structured recommendation with task graph JSON (multi-step only)
@@ -2020,11 +2499,15 @@ When invoked:
 - ALWAYS output task graph JSON in code fence for multi-step workflows
 - NEVER estimate time, duration, effort, or time savings
 - ALWAYS use semantic analysis for decomposition, dependencies, and wave scheduling
-- ALWAYS decompose tasks to at least depth 3 before atomic validation
-- NEVER mark tasks at depth 0, 1, or 2 as atomic
+- **ALWAYS decompose tasks to at least depth 3 before atomic validation**
+- **NEVER mark tasks at depth 0, 1, or 2 as atomic**
+- **ALWAYS apply ALL atomicity criteria (quantitative + qualitative) at depth ≥ 3**
+- **ALWAYS use decomposition strategies (by phase, component, file, operation, feature) for logical breakdown**
+- **ALWAYS validate task tree: all leaf nodes atomic, depth ≥ 3, agent assigned, no orphans**
 - ALWAYS insert verification phase after each implementation phase (detect using implementation keywords)
 - Verification phases use task-completion-verifier agent and include functionality, edge cases, and error handling checks
 - NEVER attempt to use Read, Bash, or Write tools - these are blocked for orchestrator
+- **REMEMBER: Atomic tasks must have <30 min duration, ≤3 files, single deliverable, no planning needed, single responsibility, self-contained, expressible in single prompt**
 
 ---
 
