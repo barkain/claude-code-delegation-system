@@ -1,139 +1,169 @@
 {
-  "permissions": {
-    "allow": [],
-    "deny": [
-      "Read(**/.env*)",
-      "Read(**/.pem*)",
-      "Read(**/*.key)",
-      "Read(**/secrets/**)",
-      "Read(**/credentials/**)",
-      "Read(**/.aws/**)",
-      "Read(**/.ssh/**)",
-      "Read(**/docker-compose*.yml)",
-      "Read(**/config/database.yml)"
-    ]
-  },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PostToolUse/python_posttooluse_hook.sh"
-          }
+    "permissions":
+    {
+        "allow":
+        [],
+        "deny":
+        [
+            "Read(**/.env*)",
+            "Read(**/.pem*)",
+            "Read(**/*.key)",
+            "Read(**/secrets/**)",
+            "Read(**/credentials/**)",
+            "Read(**/.aws/**)",
+            "Read(**/.ssh/**)",
+            "Read(**/docker-compose*.yml)",
+            "Read(**/config/database.yml)"
         ]
-      },
-      {
-        "matcher": "Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PostToolUse/update_wave_state.sh",
-            "timeout": 5,
-            "description": "Auto-advance waves when all phases complete"
-          },
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PostToolUse/remind_todo_after_task.sh",
-            "timeout": 2
-          },
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PostToolUse/inject_dag_visualization.sh",
-            "timeout": 10,
-            "description": "Inject DAG visualization after Task completion"
-          },
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PostToolUse/workflow_sync.sh",
-            "timeout": 5,
-            "description": "Sync workflow state after Task completion"
-          }
+    },
+    "hooks":
+    {
+        "PostToolUse":
+        [
+            {
+                "matcher": "Edit|Write|MultiEdit",
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PostToolUse/python_posttooluse_hook.sh"
+                    }
+                ]
+            },
+            {
+                "matcher": "Task",
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PostToolUse/update_wave_state.sh",
+                        "timeout": 5,
+                        "description": "Auto-advance waves when all phases complete"
+                    },
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PostToolUse/remind_todo_after_task.sh",
+                        "timeout": 2
+                    },
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PostToolUse/inject_dag_visualization.sh",
+                        "timeout": 10,
+                        "description": "Inject DAG visualization after Task completion"
+                    },
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PostToolUse/workflow_sync.sh",
+                        "timeout": 5,
+                        "description": "Sync workflow state after Task completion"
+                    }
+                ]
+            },
+            {
+                "matcher": "Task|SlashCommand",
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PostToolUse/validation_gate.sh",
+                        "timeout": 10
+                    }
+                ]
+            }
+        ],
+        "Stop":
+        [
+            {
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/stop/python_stop_hook.sh"
+                    }
+                ]
+            }
+        ],
+        "PreToolUse":
+        [
+            {
+                "matcher": "*",
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PreToolUse/validate_task_graph_compliance.sh",
+                        "timeout": 5,
+                        "description": "Validate Task invocations against active task graph execution plan"
+                    },
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/PreToolUse/require_delegation.sh",
+                        "timeout": 5
+                    }
+                ]
+            }
+        ],
+        "UserPromptSubmit":
+        [
+            {
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh",
+                        "timeout": 2
+                    }
+                ]
+            }
+        ],
+        "SessionStart":
+        [
+            {
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/SessionStart/inject_workflow_orchestrator.sh",
+                        "timeout": 20
+                    }
+                ]
+            }
+        ],
+        "SubagentStop":
+        [
+            {
+                "matcher": "*",
+                "hooks":
+                [
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/SubagentStop/remind_todo_update.sh",
+                        "timeout": 3
+                    },
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/SubagentStop/trigger_verification.sh",
+                        "timeout": 5
+                    },
+                    {
+                        "type": "command",
+                        "command": "./.claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh",
+                        "timeout": 2
+                    }
+                ]
+            }
         ]
-      },
-      {
-        "matcher": "Task|SlashCommand",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PostToolUse/validation_gate.sh",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/stop/python_stop_hook.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PreToolUse/validate_task_graph_compliance.sh",
-            "timeout": 5,
-            "description": "Validate Task invocations against active task graph execution plan"
-          },
-          {
-            "type": "command",
-            "command": "./.claude/hooks/PreToolUse/require_delegation.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh",
-            "timeout": 2
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/SessionStart/inject_workflow_orchestrator.sh",
-            "timeout": 20
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./.claude/hooks/SubagentStop/remind_todo_update.sh",
-            "timeout": 3
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "./.claude/scripts/statusline.sh",
-    "padding": 0
-  },
-  "alwaysThinkingEnabled": true,
-  "feedbackSurveyState": {
-    "lastShownTime": 1753985473996
-  },
-  "outputStyle": "Technical Adaptive"
+    },
+    "statusLine":
+    {
+        "type": "command",
+        "command": "./.claude/scripts/statusline.sh",
+        "padding": 0
+    },
+    "alwaysThinkingEnabled": true,
+    "feedbackSurveyState":
+    {
+        "lastShownTime": 1753985473996
+    },
+    "outputStyle": "Technical Adaptive"
 }
