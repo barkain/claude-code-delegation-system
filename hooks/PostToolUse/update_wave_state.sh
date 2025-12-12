@@ -41,8 +41,8 @@ trap 'rm -f "$LOCK_FILE"' EXIT
 # Read tool result from stdin
 TOOL_RESULT=$(cat)
 
-# Extract tool name
-TOOL_NAME=$(echo "$TOOL_RESULT" | jq -r '.tool // empty')
+# Extract tool name (try .tool_name first, fallback to .tool)
+TOOL_NAME=$(echo "$TOOL_RESULT" | jq -r '.tool_name // .tool // empty')
 
 # Only process Task tool results
 if [[ "$TOOL_NAME" != "Task" ]]; then

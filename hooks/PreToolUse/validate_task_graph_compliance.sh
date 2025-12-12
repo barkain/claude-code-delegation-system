@@ -88,7 +88,8 @@ mkdir -p "$(dirname "$LOCK_FILE")"
     fi
 
 # Extract the prompt from tool input
-TASK_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // empty' 2>/dev/null || echo "")
+# Try flat structure first (.prompt), then nested structure (.parameters.prompt)
+TASK_PROMPT=$(echo "$TOOL_INPUT" | jq -r '.prompt // .parameters?.prompt // empty' 2>/dev/null || echo "")
 
 if [[ -z "$TASK_PROMPT" ]]; then
     exit 0
@@ -160,6 +161,9 @@ if [[ -n "$PHASE_WAVE" && "$PHASE_WAVE" -gt "$CURRENT_WAVE" ]]; then
     echo "Complete all Wave $CURRENT_WAVE phases first."
     exit 1
 fi
+
+) 200>"$LOCK_FILE"
+# === END CRITICAL SECTION ===
 
 # Validation passed
 exit 0

@@ -37,7 +37,8 @@ if [[ "$HAS_WORKFLOW" != "true" ]]; then
 fi
 
 # Determine project directory
-PROJECT_DIR="${PROJECT_DIR:-$(pwd)}"
+# Use CLAUDE_PROJECT_DIR (standardized across hooks) with PWD fallback for backward compatibility
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 STATE_DIR="$PROJECT_DIR/.claude/state"
 
 # Ensure state directory exists
