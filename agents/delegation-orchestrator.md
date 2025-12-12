@@ -1066,13 +1066,34 @@ After providing the markdown recommendation, you MUST output a machine-parsable 
 **Format:**
 
 ````markdown
-### REQUIRED: Execution Plan (Machine-Parsable)
+# ⚠️ BINDING EXECUTION PLAN - DO NOT MODIFY
 
-**⚠️ CRITICAL - BINDING CONTRACT:**
-The following JSON execution plan is a **BINDING CONTRACT** that the main agent MUST follow exactly.
-The main agent is **PROHIBITED** from modifying wave structure, phase order, or agent assignments.
+**CRITICAL - THIS IS A BINDING CONTRACT:**
 
-**Execution Plan JSON:**
+This execution plan is a **BINDING CONTRACT** between the orchestrator and the main agent. The main agent is **REQUIRED** to execute this plan EXACTLY as specified with NO deviations.
+
+**PROHIBITED ACTIONS:**
+- ❌ Modifying wave structure or sequence
+- ❌ Changing phase order within waves
+- ❌ Reassigning agents to different phases
+- ❌ Simplifying or collapsing phases
+- ❌ Skipping phases deemed "unnecessary"
+- ❌ Executing phases out of sequence
+- ❌ Combining parallel waves into sequential execution
+
+**REQUIRED ACTIONS:**
+- ✅ Execute ALL phases in EXACT order specified
+- ✅ Include Phase ID in EVERY Task tool invocation
+- ✅ Follow wave execution mode (sequential/parallel)
+- ✅ Pass context between dependent phases
+- ✅ Use ONLY the assigned agent for each phase
+
+---
+
+## Execution Plan JSON
+
+**⚠️ COMPLIANCE MANDATORY - Extract and Follow This Plan EXACTLY:**
+
 ```json
 {
   "schema_version": "1.0",
@@ -1090,8 +1111,7 @@ The main agent is **PROHIBITED** from modifying wave structure, phase order, or 
           "description": "Phase description",
           "agent": "agent-name",
           "dependencies": ["phase_id1", "phase_id2"],
-          "context_from_phases": ["phase_id1"],
-          "estimated_duration_seconds": 120
+          "context_from_phases": ["phase_id1"]
         }
       ]
     }
@@ -1101,33 +1121,98 @@ The main agent is **PROHIBITED** from modifying wave structure, phase order, or 
   },
   "metadata": {
     "created_at": "2025-12-02T14:30:22Z",
-    "created_by": "delegation-orchestrator",
-    "total_estimated_duration_sequential": 600,
-    "total_estimated_duration_parallel": 420,
-    "time_savings_percent": 30
+    "created_by": "delegation-orchestrator"
   }
 }
 ```
 
-**Main Agent Instructions:**
-1. Extract the complete JSON between code fence markers
-2. Parse JSON and write to `.claude/state/active_task_graph.json`
-3. Initialize phase_status for all phases (status: "pending")
-4. Initialize wave_status for all waves
-5. Set current_wave to 0
-6. Execute phases according to wave structure ONLY
-7. Include "Phase ID: phase_X_Y" marker in EVERY Task invocation
+---
+
+## MANDATORY Execution Protocol
+
+**Main Agent MUST Execute These Steps IN ORDER:**
+
+1. **Extract JSON:** Copy complete JSON between code fence markers above
+2. **Persist State:** Write JSON to `.claude/state/active_task_graph.json`
+3. **Initialize Status:** Set all phases to status "pending", all waves to "pending"
+4. **Set Current Wave:** Set current_wave = 0
+5. **Execute Wave-by-Wave:** Process waves in sequence (0, 1, 2, ...)
+6. **Phase Execution:** For EACH phase in current wave:
+   - Use Task tool with EXACT agent specified in "agent" field
+   - Include "Phase ID: {phase_id}" at START of Task prompt
+   - Pass context from "context_from_phases" dependencies
+   - Mark phase "active" during execution
+   - Mark phase "completed" when Task returns results
+7. **Wave Completion:** When ALL phases in wave complete, advance to next wave
+8. **Parallel Waves:** If wave has parallel_execution=true, invoke ALL Task tools simultaneously in ONE message
+
+---
+
+## Phase ID Requirements
+
+**CRITICAL:** Every Task tool invocation MUST include the Phase ID marker.
+
+**Format:**
+- Pattern: `phase_{wave_id}_{phase_index}`
+- Wave 0, Phase 0: `phase_0_0`
+- Wave 0, Phase 1: `phase_0_1`
+- Wave 2, Phase 3: `phase_2_3`
+
+**Task Tool Prompt Template:**
+```
+Phase ID: phase_{W}_{P}
+
+[Agent-specific instructions here...]
+```
+
+**Enforcement:** The workflow system tracks phases by ID. Missing Phase IDs will cause state desynchronization.
+
+---
+
+## Dependency Graph Enforcement
+
+**Rules:**
+- Phases with `dependencies: []` can execute immediately
+- Phases with dependencies MUST wait until ALL dependencies complete
+- Circular dependencies are INVALID (orchestrator prevents these)
+
+**Validation:**
+- Before executing phase X, verify ALL phases in X.dependencies are "completed"
+- If dependency not met, HALT execution and report error
+
+---
+
+## Compliance Verification
+
+After completing execution, verify:
+- [ ] All phases executed in correct wave order
+- [ ] All Phase IDs included in Task invocations
+- [ ] All assigned agents used (no substitutions)
+- [ ] All parallel waves executed simultaneously
+- [ ] All dependencies respected
+- [ ] No phases skipped or modified
+
+**Non-Compliance Consequences:**
+- Workflow state corruption
+- Context passing failures
+- Dependency violations
+- Incomplete deliverables
+
+---
 ````
 
-**Phase ID Format:**
-- Format: `phase_{wave_id}_{phase_index}`
-- Example Wave 0, first phase: `phase_0_0`
-- Example Wave 2, third phase: `phase_2_2`
+**Orchestrator Responsibilities:**
+- Generate valid, cycle-free dependency graph
+- Ensure all phase IDs follow naming convention
+- Assign appropriate agents to phases
+- Specify context requirements clearly
 
-**Dependency Graph Rules:**
-- Phases with empty dependencies array can start immediately
-- Phases with dependencies must wait for all dependencies to complete
-- Circular dependencies are INVALID (detect and report)
+**Main Agent Responsibilities:**
+- Follow execution plan EXACTLY as specified
+- Include Phase IDs in ALL Task invocations
+- Execute waves in correct sequence
+- Pass context between dependent phases
+- Use ONLY assigned agents (no substitutions)
 
 ---
 
@@ -2267,13 +2352,37 @@ Failure to include a valid dependency graph renders the output incomplete and un
 ### Multi-Step Recommendation
 
 ```markdown
+# ⚠️ BINDING EXECUTION PLAN - DO NOT MODIFY
+
+**CRITICAL - THIS IS A BINDING CONTRACT:**
+
+This execution plan is a **BINDING CONTRACT** between the orchestrator and the main agent. The main agent is **REQUIRED** to execute this plan EXACTLY as specified with NO deviations.
+
+**PROHIBITED ACTIONS:**
+- ❌ Modifying wave structure or sequence
+- ❌ Changing phase order within waves
+- ❌ Reassigning agents to different phases
+- ❌ Simplifying or collapsing phases
+- ❌ Skipping phases deemed "unnecessary"
+- ❌ Executing phases out of sequence
+- ❌ Combining parallel waves into sequential execution
+
+**REQUIRED ACTIONS:**
+- ✅ Execute ALL phases in EXACT order specified
+- ✅ Include Phase ID in EVERY Task tool invocation
+- ✅ Follow wave execution mode (sequential/parallel)
+- ✅ Pass context between dependent phases
+- ✅ Use ONLY the assigned agent for each phase
+
+---
+
 ## ORCHESTRATION RECOMMENDATION
 
-### Task Analysis
+### Execution Summary
 - **Type**: Multi-step hierarchical workflow
 - **Total Atomic Tasks**: [Number]
 - **Total Waves**: [Number]
-- **Execution Mode**: Parallel (or Sequential if only 1 task per wave)
+- **Execution Mode**: [Sequential/Parallel]
 
 ### Task Graph JSON Output
 
@@ -2290,83 +2399,154 @@ Failure to include a valid dependency graph renders the output incomplete and un
 
 **Your Task:** Generate the task graph JSON following the schema above.
 
-**Example:**
+## Execution Plan JSON
+
+**⚠️ COMPLIANCE MANDATORY - Extract and Follow This Plan EXACTLY:**
+
 ```json
 {
-  "workflow": {
-    "name": "Build Calculator Application",
-    "total_phases": 7,
-    "total_waves": 4
-  },
+  "schema_version": "1.0",
+  "task_graph_id": "tg_YYYYMMDD_HHMMSS",
+  "execution_mode": "sequential" | "parallel",
+  "total_waves": N,
+  "total_phases": M,
   "waves": [
     {
-      "id": 0,
-      "name": "Foundation",
-      "parallel": true,
-      "tasks": [
+      "wave_id": 0,
+      "parallel_execution": true | false,
+      "phases": [
         {
-          "id": "1.1",
-          "type": "design",
-          "emoji": "🎨",
-          "title": "Design calculator API",
-          "agent": "tech-lead-architect",
-          "goal": "Define calculator function signatures",
-          "deliverable": "calculator_api_spec.md",
-          "depends_on": []
+          "phase_id": "phase_W_P",
+          "description": "Phase description",
+          "agent": "agent-name",
+          "dependencies": ["phase_id1", "phase_id2"],
+          "context_from_phases": ["phase_id1"],
+          "deliverables": ["expected output descriptions"]
         }
       ]
     }
-  ]
+  ],
+  "dependency_graph": {
+    "phase_id": ["dependency1", "dependency2"]
+  },
+  "metadata": {
+    "created_at": "2025-12-12T14:30:22Z",
+    "created_by": "delegation-orchestrator"
+  }
 }
 ```
 
 **Note:** Do NOT attempt to manually render the DAG using Write/Bash tools. Simply output the JSON and the hook handles visualization.
 
-### Wave Breakdown
+---
 
-**Wave 0 (X parallel tasks):**
+## MANDATORY Execution Protocol
 
-**IMPORTANT:** Execute Wave 0 tasks in parallel by invoking all Task tools simultaneously in a single message.
+**Main Agent MUST Execute These Steps IN ORDER:**
 
-**Phase: task.id - [Description]**
+1. **Extract JSON:** Copy complete JSON between code fence markers above
+2. **Persist State:** Write JSON to `.claude/state/active_task_graph.json`
+3. **Initialize Status:** Set all phases to status "pending", all waves to "pending"
+4. **Set Current Wave:** Set current_wave = 0
+5. **Execute Wave-by-Wave:** Process waves in sequence (0, 1, 2, ...)
+6. **Phase Execution:** For EACH phase in current wave:
+   - Use Task tool with EXACT agent specified in "agent" field
+   - Include "Phase ID: {phase_id}" at START of Task prompt
+   - Pass context from "context_from_phases" dependencies
+   - Mark phase "active" during execution
+   - Mark phase "completed" when Task returns results
+7. **Wave Completion:** When ALL phases in wave complete, advance to next wave
+8. **Parallel Waves:** If wave has parallel_execution=true, invoke ALL Task tools simultaneously in ONE message
+
+---
+
+## Phase ID Requirements
+
+**CRITICAL:** Every Task tool invocation MUST include the Phase ID marker at the beginning of the prompt.
+
+**Format:**
+- Pattern: `phase_{wave_id}_{phase_index}`
+- Wave 0, Phase 0: `phase_0_0`
+- Wave 0, Phase 1: `phase_0_1`
+- Wave 2, Phase 3: `phase_2_3`
+
+**Task Tool Prompt Template:**
+```
+Phase ID: phase_{W}_{P}
+
+[Agent-specific instructions here...]
+```
+
+**Enforcement:** The workflow system tracks phases by ID. Missing Phase IDs will cause state desynchronization.
+
+---
+
+## Wave Breakdown
+
+### Wave 0 (X parallel/sequential tasks)
+
+**IMPORTANT:** If parallel_execution=true, execute ALL Wave 0 tasks in parallel by invoking all Task tools simultaneously in a single message.
+
+**Phase 0_0: [Description]**
+- **Phase ID:** `phase_0_0`
 - **Agent:** [agent-name]
-- **Dependencies:** (none) or (task_id1, task_id2)
-- **Deliverables:** [Expected outputs]
+- **Dependencies:** (none) or (phase_id1, phase_id2)
+- **Deliverables:** [Expected outputs with file paths]
 
-**Delegation Prompt:**
+**Delegation Prompt Template:**
 ```
-[Complete prompt ready for delegation]
+Phase ID: phase_0_0
+
+[Complete prompt ready for delegation including all context requirements]
 ```
 
-**Note:** Ensure your delegation prompts reference the phases shown in your ASCII dependency graph above. Each phase in the graph should correspond to one delegation prompt.
+**⚠️ COMPLIANCE REMINDER:** Include "Phase ID: phase_0_0" at the START of your Task tool invocation.
 
-[Repeat for all tasks in Wave 0...]
+[Repeat for all phases in Wave 0...]
 
-**Wave 1 (Y parallel tasks):**
+---
 
-**Context from Wave 0:**
-- task.id outputs: [Artifacts created]
-- Key decisions: [Decisions made]
+### Wave 1 (Y parallel/sequential tasks)
 
-**Phase: task.id - [Description]**
+**Context Required from Wave 0:**
+- phase_0_0 outputs: [Artifacts created with absolute paths]
+- phase_0_1 outputs: [Artifacts created with absolute paths]
+- Key decisions: [Decisions made that affect Wave 1]
+
+**Phase 1_0: [Description]**
+- **Phase ID:** `phase_1_0`
 - **Agent:** [agent-name]
-- **Dependencies:** (task_id from Wave 0)
-- **Deliverables:** [Expected outputs]
+- **Dependencies:** (phase_0_0, phase_0_1)
+- **Deliverables:** [Expected outputs with file paths]
 
-**Delegation Prompt:**
+**Delegation Prompt Template:**
 ```
-[Complete prompt with context from Wave 0]
+Phase ID: phase_1_0
+
+Context from previous phases:
+[Context from phase_0_0]
+[Context from phase_0_1]
+
+[Complete prompt with context from dependent phases]
 ```
 
-[Repeat for all waves...]
+**⚠️ COMPLIANCE REMINDER:** Include "Phase ID: phase_1_0" at the START of your Task tool invocation.
 
-### Analysis Results
+[Repeat for all phases in Wave 1...]
+
+---
+
+[Continue for all waves...]
+
+---
+
+## Analysis Results
 
 **Atomic Task Detection (Semantic Analysis):**
 ```json
 {
-  "task.id": {"is_atomic": true, "rationale": "Single file operation, indivisible"},
-  "task.id": {"is_atomic": true, "rationale": "Single API endpoint, atomic unit"}
+  "phase_0_0": {"is_atomic": true, "rationale": "Single file operation, <30 min, ≤3 files"},
+  "phase_0_1": {"is_atomic": true, "rationale": "Single API endpoint, atomic unit"}
 }
 ```
 
@@ -2376,8 +2556,8 @@ Failure to include a valid dependency graph renders the output incomplete and un
   "valid": true,
   "cycles": [],
   "dependency_graph": {
-    "task.id": [],
-    "task.id": ["dependency_task_id"]
+    "phase_0_0": [],
+    "phase_1_0": ["phase_0_0"]
   }
 }
 ```
@@ -2386,13 +2566,34 @@ Failure to include a valid dependency graph renders the output incomplete and un
 ```json
 {
   "wave_assignments": {
-    "task.id": 0,
-    "task.id": 1
+    "phase_0_0": 0,
+    "phase_0_1": 0,
+    "phase_1_0": 1
   },
   "total_waves": 2,
-  "parallel_opportunities": 3
+  "parallel_opportunities": 2
 }
 ```
+
+---
+
+## Compliance Verification
+
+After executing this plan, verify:
+- [ ] All phases executed in correct wave order
+- [ ] All Phase IDs included in Task invocations
+- [ ] All assigned agents used (no substitutions)
+- [ ] All parallel waves executed simultaneously
+- [ ] All dependencies respected
+- [ ] No phases skipped or modified
+
+**Non-Compliance Consequences:**
+- Workflow state corruption
+- Context passing failures
+- Dependency violations
+- Incomplete deliverables
+
+---
 
 ### Execution Summary
 

@@ -1217,3 +1217,63 @@ Execute the delegation process now using Steps 1-4 above.
 - Parse the delegation prompt from orchestrator's structured output
 - Use the extracted prompt verbatim when spawning the specialized agent
 - The main agent will automatically interpret your instructions and spawn the correct subagents using Claude's built-in subagent system
+
+---
+
+## ⚠️ TASK GRAPH COMPLIANCE - BINDING CONTRACT
+
+When the delegation-orchestrator returns an execution plan with a JSON task graph, the main agent MUST treat it as a **BINDING CONTRACT**.
+
+### CRITICAL RULES - NO EXCEPTIONS
+
+1. **PARSE JSON EXECUTION PLAN IMMEDIATELY**
+   - Extract JSON from "Execution Plan JSON" code fence
+   - Write to `.claude/state/active_task_graph.json`
+   - This JSON is a **BINDING CONTRACT** you MUST follow exactly
+
+2. **PROHIBITED ACTIONS**
+   - ❌ PROHIBITED: Simplifying the execution plan
+   - ❌ PROHIBITED: Collapsing parallel waves to sequential
+   - ❌ PROHIBITED: Changing agent assignments
+   - ❌ PROHIBITED: Reordering phases
+   - ❌ PROHIBITED: Skipping phases
+   - ❌ PROHIBITED: Adding phases not in plan
+   - ❌ PROHIBITED: Deciding "this is simple enough to do in one step"
+   - ❌ PROHIBITED: Summarizing or condensing the orchestrator's breakdown
+
+3. **EXACT WAVE EXECUTION REQUIRED**
+   - Execute Wave 0 before Wave 1, Wave 1 before Wave 2
+   - For parallel waves (`wave.parallel_execution == true`):
+     - Spawn ALL phase Tasks in SINGLE message (concurrent execution)
+     - Do NOT wait between individual spawns
+   - For sequential waves:
+     - Execute phases in order, waiting for completion
+
+4. **PHASE ID MARKERS MANDATORY**
+   - EVERY Task invocation MUST include phase ID in prompt:
+     ```
+     Phase ID: phase_0_0
+     Agent: [agent-name]
+
+     [Task description...]
+     ```
+
+5. **ESCAPE HATCH (Legitimate Exceptions Only)**
+   - If execution plan appears genuinely impractical:
+     1. Do NOT simplify
+     2. Use `/ask` to notify user of concern
+     3. Wait for user decision to override or proceed
+   - Legitimate concerns:
+     - Orchestrator assigned non-existent agent
+     - Phase dependencies form circular loop
+     - Resource constraints make parallel execution unsafe
+   - NOT legitimate: "Plan seems complex" or "Sequential feels safer"
+
+### Why This Matters
+
+The orchestrator has analyzed task dependencies, selected specialized agents, and planned optimal execution order. Overriding this analysis:
+- Loses the benefit of specialized agent expertise
+- Breaks dependency management
+- Defeats the purpose of the delegation system
+
+**Trust the orchestrator. Execute the plan exactly as specified.**
