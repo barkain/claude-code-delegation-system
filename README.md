@@ -13,7 +13,7 @@ This system uses Claude Code's hook mechanism to create a delegation-enforced wo
 ### Key Features
 
 - **Enforced Delegation** - PreToolUse hooks block direct tool usage, forcing delegation to specialized agents
-- **10 Specialized Agents** - Each agent has domain expertise (code cleanup, testing, architecture, DevOps, etc.)
+- **11 Specialized Agents** - Each agent has domain expertise (code cleanup, testing, architecture, DevOps, etc.)
 - **Intelligent Orchestration** - Delegation orchestrator analyzes tasks and selects optimal agents via keyword matching
 - **Intelligent Multi-Step Workflows** - Sequential execution for dependent phases, parallel for independent phases
 - **Isolated Subagent Sessions** - Each delegation spawns independent session with custom system prompts
@@ -37,128 +37,26 @@ This system uses Claude Code's hook mechanism to create a delegation-enforced wo
 
 **Execution Mode Selection:** The orchestrator intelligently chooses between sequential (context preservation, dependencies) and parallel (time savings, independence) based on phase dependency analysis.
 
-## Core Components
-
-### 1. Delegation Hook (`hooks/PreToolUse/require_delegation.sh`)
-
-Blocks most tools and forces delegation to specialized agents.
-
-**Allowed tools:**
-- `AskUserQuestion` - Ask users for clarification
-- `TodoWrite` - Track task progress
-- `SlashCommand` - Execute slash commands (including `/delegate`)
-- `Task` - Spawn subagents
-
-**All other tools are blocked** and show:
-```
-🚫 Tool blocked by delegation policy
-✅ REQUIRED: Use /delegate command immediately
-```
-
-### 2. Specialized Agents (`agents/`)
-
-10 specialized agents for different task types:
-
-- **delegation-orchestrator** - Analyzes tasks and routes to appropriate agents
-- **tech-lead-architect** - Solution design, architecture, research
-- **codebase-context-analyzer** - Code exploration, architecture analysis
-- **task-decomposer** - Project planning, task breakdown
-- **task-completion-verifier** - Validation, testing, quality assurance
-- **code-cleanup-optimizer** - Refactoring, technical debt reduction
-- **code-reviewer** - Code review for best practices
-- **devops-experience-architect** - Infrastructure, deployment, CI/CD
-- **documentation-expert** - Documentation creation and maintenance
-- **dependency-manager** - Dependency management and updates
-
-### 3. Delegation Command (`commands/delegate.md`)
-
-The `/delegate` command provides intelligent task delegation:
-
-```bash
-/delegate <task description>
-```
-
-**How it works:**
-1. Spawns the `delegation-orchestrator` agent
-2. Orchestrator analyzes task complexity (single-step vs multi-step)
-3. Selects appropriate specialized agent(s)
-4. Constructs optimized delegation prompt
-5. Returns recommendation for execution
-
-### 4. Workflow Orchestration System Prompt (`system-prompts/WORKFLOW_ORCHESTRATOR.md`)
-
-Enables multi-step workflow orchestration for complex tasks.
-
-**Activate via:**
-```bash
-claude --append-system-prompt "$(cat ./system-prompts/WORKFLOW_ORCHESTRATOR.md)"
-```
-
-**Multi-step detection patterns:**
-- Sequential connectors: "and then", "after that", "next"
-- Compound indicators: "with [noun]", "including [noun]"
-- Multiple verbs: "create X and test Y"
-
-**Workflow execution model:**
-1. **Intelligent Execution Mode Selection** - Orchestrator analyzes phase dependencies
-2. **Sequential Execution** - Dependent phases execute one at a time with context passing
-3. **Parallel Execution** - Independent phases execute concurrently in waves
-4. **Progress Tracking** - TodoWrite maintains visible task list throughout
-5. **State Management** - Wave synchronization ensures proper completion order
-
-**Note**: The system intelligently chooses execution mode based on phase dependency analysis. Sequential execution is used when phases have data dependencies or file conflicts, ensuring proper context passing and error handling. Parallel execution is used when phases are independent, significantly reducing total execution time while maintaining correctness.
-
-**Workflow orchestration process:**
-1. Detects multi-step patterns in user request
-2. Creates TodoWrite task list with all phases
-3. Analyzes phase dependencies and determines execution mode
-4. **Sequential Mode:** Delegates phases one at a time with context passing
-5. **Parallel Mode:** Groups independent phases into waves, executes waves concurrently
-6. Synchronizes between waves, aggregates results
-7. Provides consolidated summary with absolute paths
 
 ## Quick Start
 
 ### Installation
 
-1. **Create a new project with git worktree (or use existing project):**
-   ```bash
-   # If creating new project from existing repo
-   git worktree add ../my-project
-   cd ../my-project
+**Option 1: Automated Installation (Recommended)**
 
-   # Or navigate to your existing project directory
-   cd path/to/your-project
-   ```
+```bash
+./install.sh
+```
 
-2. **Clone the delegation system into .claude directory:**
-   ```bash
-   git clone git@github.com:barkain/claude-code-delegation-system.git .claude
-   ```
+The installer automatically copies all files to ~/.claude/ and makes hooks executable.
 
-3. **Make all shell scripts executable:**
-   ```bash
-   find .claude -type f -iname "*.sh" -exec printf "Changing permissions for: %s\n" {} \; -exec chmod +x {} \;
-   ```
+**Option 2: Project-Specific Installation**
 
-4. **Verify hook installation:**
-   ```bash
-   # Check that hooks are executable
-   ls -la .claude/hooks/PreToolUse/require_delegation.sh
-   ls -la .claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh
+```bash
+./install.sh /path/to/your/project
+```
 
-   # Verify settings.json exists
-   ls -la .claude/settings.json
-
-   # Check agent files
-   ls .claude/agents/
-   ```
-
-5. **Run Claude with workflow orchestrator:**
-   ```bash
-   cd ..  # Back to project root
-   claude --append-system-prompt "$(cat .claude/system-prompts/WORKFLOW_ORCHESTRATOR.md)" --dangerously-skip-permissions
-   ```
+Installs to a specific project's `.claude/` directory instead of `~/.claude/`. Useful for project-isolated configurations or version-controlled delegation setups.
 
 ### Basic Usage
 
@@ -229,12 +127,12 @@ The `settings.json` configures the delegation enforcement hooks:
     "PreToolUse": [
       {
         "matcher": "*",
-        "hooks": [{"type": "command", "command": "~/.claude/hooks/PreToolUse/require_delegation.sh"}]
+        "hooks": [{"type": "command", "command": "./.claude/hooks/PreToolUse/require_delegation.sh"}]
       }
     ],
     "UserPromptSubmit": [
       {
-        "hooks": [{"type": "command", "command": "~/.claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh"}]
+        "hooks": [{"type": "command", "command": "./.claude/hooks/UserPromptSubmit/clear-delegation-sessions.sh"}]
       }
     ]
   }
@@ -279,6 +177,89 @@ claude --append-system-prompt "$(cat .claude/system-prompts/WORKFLOW_ORCHESTRATO
 - Context passing between workflow phases
 - TodoWrite integration for progress tracking
 - Wave synchronization for parallel execution
+
+
+## Core Components
+
+### 1. Delegation Hook (`hooks/PreToolUse/require_delegation.sh`)
+
+Blocks most tools and forces delegation to specialized agents.
+
+**Allowed tools:**
+- `AskUserQuestion` - Ask users for clarification
+- `TodoWrite` - Track task progress
+- `SlashCommand` - Execute slash commands (including `/delegate`)
+- `Task` - Spawn subagents
+
+**All other tools are blocked** and show:
+```
+🚫 Tool blocked by delegation policy
+✅ REQUIRED: Use /delegate command immediately
+```
+
+### 2. Specialized Agents (`agents/`)
+
+11 specialized agents for different task types:
+
+- **delegation-orchestrator** - Analyzes tasks and routes to appropriate agents
+- **tech-lead-architect** - Solution design, architecture, research
+- **codebase-context-analyzer** - Code exploration, architecture analysis
+- **task-decomposer** - Project planning, task breakdown
+- **task-completion-verifier** - Validation, testing, quality assurance
+- **code-cleanup-optimizer** - Refactoring, technical debt reduction
+- **code-reviewer** - Code review for best practices
+- **devops-experience-architect** - Infrastructure, deployment, CI/CD
+- **documentation-expert** - Documentation creation and maintenance
+- **dependency-manager** - Dependency management and updates
+- **phase-validator** - Phase completion validation, deliverable verification, quality gates
+
+### 3. Delegation Command (`commands/delegate.md`)
+
+The `/delegate` command provides intelligent task delegation:
+
+```bash
+/delegate <task description>
+```
+
+**How it works:**
+1. Spawns the `delegation-orchestrator` agent
+2. Orchestrator analyzes task complexity (single-step vs multi-step)
+3. Selects appropriate specialized agent(s)
+4. Constructs optimized delegation prompt
+5. Returns recommendation for execution
+
+### 4. Workflow Orchestration System Prompt (`system-prompts/WORKFLOW_ORCHESTRATOR.md`)
+
+Enables multi-step workflow orchestration for complex tasks.
+
+**Activate via:**
+```bash
+claude --append-system-prompt "$(cat ./system-prompts/WORKFLOW_ORCHESTRATOR.md)"
+```
+
+**Multi-step detection patterns:**
+- Sequential connectors: "and then", "after that", "next"
+- Compound indicators: "with [noun]", "including [noun]"
+- Multiple verbs: "create X and test Y"
+
+**Workflow execution model:**
+1. **Intelligent Execution Mode Selection** - Orchestrator analyzes phase dependencies
+2. **Sequential Execution** - Dependent phases execute one at a time with context passing
+3. **Parallel Execution** - Independent phases execute concurrently in waves
+4. **Progress Tracking** - TodoWrite maintains visible task list throughout
+5. **State Management** - Wave synchronization ensures proper completion order
+
+**Note**: The system intelligently chooses execution mode based on phase dependency analysis. Sequential execution is used when phases have data dependencies or file conflicts, ensuring proper context passing and error handling. Parallel execution is used when phases are independent, significantly reducing total execution time while maintaining correctness.
+
+**Workflow orchestration process:**
+1. Detects multi-step patterns in user request
+2. Creates TodoWrite task list with all phases
+3. Analyzes phase dependencies and determines execution mode
+4. **Sequential Mode:** Delegates phases one at a time with context passing
+5. **Parallel Mode:** Groups independent phases into waves, executes waves concurrently
+6. Synchronizes between waves, aggregates results
+7. Provides consolidated summary with absolute paths
+
 
 ## Usage
 
@@ -802,7 +783,7 @@ grep -A 10 "SessionStart" .claude/settings.json
 - Enable debug mode: `export DEBUG_DELEGATION_HOOK=1`
 
 ### Agent not found
-- Verify agent file exists: `ls ~/.claude/agents/`
+- Verify agent file exists: `ls ./.claude/agents/`
 - Check agent filename matches delegation request
 
 ### Multi-step workflow not detected
