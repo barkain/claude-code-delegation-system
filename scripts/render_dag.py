@@ -39,7 +39,7 @@ def render_task_card(task: dict, width: int = CARD_WIDTH) -> list[str]:
 
     # Build card
     header = f"─ {emoji} {task_type}: {title} "
-    header_line = "┌" + header + "─" * (width - len(header) - 1) + "┐"
+    header_line = "┌" + header + "─" * max(0, width - len(header) - 1) + "┐"
 
     lines = [header_line]
     lines.append(f"│  Agent: {agent:<{width - 11}}│")
@@ -65,7 +65,7 @@ def render_wave_header(wave: dict, total_width: int = MAX_WIDTH) -> str:
         left += f"─ {name} "
 
     right = parallel_str
-    dashes = "─" * (total_width - len(left) - len(right))
+    dashes = "─" * max(0, total_width - len(left) - len(right))
     return left + dashes + right
 
 
@@ -258,7 +258,7 @@ def render_dag(graph: dict) -> str:
         lines.append("")
 
     # Footer
-    lines.append(" " * (MAX_WIDTH // 2 - 7) + "═══════ COMPLETE ═══════")
+    lines.append(" " * max(0, MAX_WIDTH // 2 - 7) + "═══════ COMPLETE ═══════")
 
     return "\n".join(lines)
 
