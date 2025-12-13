@@ -1,5 +1,0 @@
-{"tool":"Read","status":"success","session_id":"sess_fixture_001","workflow_id":"wf_fixture_001","timestamp":"2025-11-15T10:00:00Z","parameters":{"file_path":"/path/to/file1.txt"},"duration_ms":150}
-{"tool":"Write","status":"success","session_id":"sess_fixture_001","workflow_id":"wf_fixture_001","timestamp":"2025-11-15T10:01:00Z","parameters":{"file_path":"/path/to/file2.txt"},"duration_ms":200}
-{"tool":"Edit","status":"error","session_id":"sess_fixture_001","workflow_id":"wf_fixture_001","timestamp":"2025-11-15T10:02:00Z","parameters":{"file_path":"/path/to/file3.txt"},"error":"File not found","duration_ms":50}
-{"tool":"Bash","status":"success","session_id":"sess_fixture_001","workflow_id":"wf_fixture_001","timestamp":"2025-11-15T10:03:00Z","parameters":{"command":"ls -la"},"duration_ms":300}
-{"tool":"Edit","status":"success","session_id":"sess_fixture_001","workflow_id":"wf_fixture_001","timestamp":"2025-11-15T10:04:00Z","parameters":{"file_path":"/path/to/file3.txt"},"duration_ms":180,"retry_attempt":1}
