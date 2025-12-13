@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+# Get the directory where this script is located
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Color codes for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
@@ -63,14 +66,14 @@ validate_source() {
 
     # Check directories
     for dir in "${DIRS_TO_COPY[@]}"; do
-        if [[ ! -d "$dir" ]]; then
+        if [[ ! -d "$SCRIPT_DIR/$dir" ]]; then
             missing_items+=("directory: $dir")
         fi
     done
 
     # Check files
     for file in "${FILES_TO_COPY[@]}"; do
-        if [[ ! -f "$file" ]]; then
+        if [[ ! -f "$SCRIPT_DIR/$file" ]]; then
             missing_items+=("file: $file")
         fi
     done
@@ -154,7 +157,7 @@ copy_files() {
     # Copy directories
     for dir in "${DIRS_TO_COPY[@]}"; do
         print_info "Copying $dir/..."
-        if cp -r "$dir"/* "$claude_dir/$dir/" 2>/dev/null; then
+        if cp -r "$SCRIPT_DIR/$dir"/* "$claude_dir/$dir/" 2>/dev/null; then
             print_success "Copied $dir/"
         else
             print_warning "No files found in $dir/ or copy failed"
@@ -164,7 +167,7 @@ copy_files() {
     # Copy individual files
     for file in "${FILES_TO_COPY[@]}"; do
         print_info "Copying $file..."
-        if cp "$file" "$claude_dir/$file"; then
+        if cp "$SCRIPT_DIR/$file" "$claude_dir/$file"; then
             print_success "Copied $file"
         else
             print_error "Failed to copy $file"

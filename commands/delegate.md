@@ -36,6 +36,35 @@ The **main agent** (you are reading this now) receives the orchestrator's recomm
 
 ---
 
+## Automatic Verification Injection
+
+**CRITICAL:** The delegation system automatically injects verification phases for ALL workflows.
+
+### Minimum 2-Phase Structure
+
+ALL workflows have minimum 2 phases:
+- **Phase 1:** Implementation (create, build, design, refactor, etc.)
+- **Phase 2:** Verification (validate implementation meets acceptance criteria)
+
+Even simple single-file tasks like "Create calculator.py" follow this structure:
+1. Implementation phase: Create the file
+2. Verification phase: Validate file exists, functions work, type hints present
+
+### How Verification Injection Works
+
+1. Orchestrator identifies implementation phases
+2. Automatically creates verification phase for each implementation
+3. Verification uses task-completion-verifier or phase-validator agent
+4. Verification scheduled in wave after implementation completes
+
+### Verification Verdicts
+
+- **PASS:** Proceed to next phase
+- **FAIL:** Re-implementation with remediation steps
+- **PASS_WITH_MINOR_ISSUES:** Proceed with warnings tracked
+
+---
+
 ## Available Specialized Agents
 
 The orchestrator has access to these specialized agents:

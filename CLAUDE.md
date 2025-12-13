@@ -324,28 +324,35 @@ TASK: [User's task description with objectives]
 
 ## Workflow Guidelines
 
-### Single-Step Task Flow
+### Simple Workflow Pattern
 
 **Pattern Recognition:**
 - Single action: "Create calculator.py"
 - Single deliverable: "Analyze the authentication system"
 - No sequential connectors: No "and then", "with", "after that"
 
+**CRITICAL:** ALL workflows include automatic verification phases. Even simple tasks follow a 2-phase minimum:
+- **Phase 1:** Implementation (create, build, design, refactor, etc.)
+- **Phase 2:** Verification (validate implementation meets acceptance criteria)
+
 **Execution Sequence:**
 ```
 1. User: /delegate "Refactor auth module"
 2. PreToolUse hook: Allow (SlashCommand), Register session
 3. /delegate spawns delegation-orchestrator
-4. Orchestrator analyzes: Single-step, keywords "refactor" → code-cleanup-optimizer
-5. Orchestrator loads ~/.claude/agents/code-cleanup-optimizer.md
-6. Orchestrator constructs prompt: [System prompt] + TASK
-7. Orchestrator returns recommendation
-8. Main Claude spawns code-cleanup-optimizer with prompt
-9. Agent executes refactoring
-10. Results returned to user
+4. Orchestrator analyzes: Simple workflow, keywords "refactor" → code-cleanup-optimizer
+5. Orchestrator creates 2 phases:
+   - Phase 1: Refactoring implementation (code-cleanup-optimizer)
+   - Phase 2: Verification (task-completion-verifier or phase-validator)
+6. Orchestrator loads agent configs and constructs prompts
+7. Orchestrator returns recommendation with both phases
+8. Main Claude spawns code-cleanup-optimizer for Phase 1
+9. Phase 1 executes refactoring
+10. Verification phase auto-injected: Phase 2 validates changes
+11. Results returned to user with verification verdict
 ```
 
-**No TodoWrite required** - Single-step tasks don't need progress tracking.
+**TodoWrite IS Required** - All workflows use TodoWrite to track both implementation and verification phases.
 
 ### Multi-Step Workflow Detection
 
