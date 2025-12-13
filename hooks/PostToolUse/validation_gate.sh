@@ -20,10 +20,19 @@
 set -euo pipefail
 
 # Configuration
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-readonly VALIDATION_STATE_DIR="${PROJECT_ROOT}/.claude/state/validation"
-readonly LOG_FILE="${VALIDATION_STATE_DIR}/gate_invocations.log"
+# Guard against readonly variable redefinition when script is sourced multiple times
+if [[ -z "${SCRIPT_DIR:-}" ]]; then
+    readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
+if [[ -z "${PROJECT_ROOT:-}" ]]; then
+    readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+fi
+if [[ -z "${VALIDATION_STATE_DIR:-}" ]]; then
+    readonly VALIDATION_STATE_DIR="${PROJECT_ROOT}/.claude/state/validation"
+fi
+if [[ -z "${LOG_FILE:-}" ]]; then
+    readonly LOG_FILE="${VALIDATION_STATE_DIR}/gate_invocations.log"
+fi
 
 ################################################################################
 # Logging Functions
@@ -754,6 +763,8 @@ invoke_validation() {
 main() {
     # Ensure validation state directory exists
     mkdir -p "${VALIDATION_STATE_DIR}"
+    # Ensure deliverables directory exists
+    mkdir -p "${PROJECT_ROOT}/.claude/state/deliverables"
 
     # Read stdin once and store for reuse
     local input_json
@@ -819,7 +830,7 @@ main() {
                         log_event "VALIDATION" "gate" "Phase validation required (session: ${session_id}, workflow: ${workflow_id})"
 
                         # Find validation config file
-                        local config_file
+                        local config_file=""
                         if [[ -n "${workflow_id}" ]]; then
                             # Search for workflow-specific config first
                             config_file=$(find "${VALIDATION_STATE_DIR}" -maxdepth 1 -name "phase_${workflow_id}_*.json" 2>/dev/null | head -n 1)
