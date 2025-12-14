@@ -1,4 +1,4 @@
-# Claude Code Delegation System
+# Claude Code Workflow Orchestration System
 
 A hook-based framework for Claude Code that enforces task delegation to specialized agents, enabling structured workflows and expert-level task handling through intelligent orchestration.
 
