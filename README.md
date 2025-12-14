@@ -40,6 +40,9 @@ This system uses Claude Code's hook mechanism to create a delegation-enforced wo
 
 ## Quick Start
 
+### Prerequisite
+Install ccusage: https://ccusage.com/guide/installation
+
 ### Installation
 
 **Option 1: Automated Installation (Recommended)**
