@@ -40,8 +40,26 @@ This system uses Claude Code's hook mechanism to create a delegation-enforced wo
 
 ## Quick Start
 
-### Prerequisite
-Install ccusage: https://ccusage.com/guide/installation
+### Prerequisites (mac)
+- uv: https://docs.astral.sh/uv/getting-started/installation/
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+- bun: https://bun.com/docs/installation
+```bash
+curl -fsSL https://bun.com/install | bash
+```
+
+- bc: Basic calculator for statusline percentage calculations.
+```bash
+brew install bc
+```
+
+- jq: JSON processor for parallel workflow state tracking.
+```bash
+brew install jq
+```
 
 ### Installation
 
