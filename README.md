@@ -63,21 +63,21 @@ brew install jq
 
 ### Installation
 
-**Option 1: Automated Installation (Recommended)**
-
-```bash
-./install.sh
-```
-
-The installer automatically copies all files to ~/.claude/ and makes hooks executable.
-
-**Option 2: Project-Specific Installation**
+**Option 1: Project-Specific Installation (Recommended)**
 
 ```bash
 ./install.sh /path/to/your/project
 ```
 
 Installs to a specific project's `.claude/` directory instead of `~/.claude/`. Useful for project-isolated configurations or version-controlled delegation setups.
+
+**Option 2: Automated Installation**
+
+```bash
+./install.sh
+```
+
+The installer automatically copies all files to ~/.claude/ and makes hooks executable.
 
 ### Basic Usage
 
