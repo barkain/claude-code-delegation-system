@@ -12,19 +12,58 @@ This system prompt enables multi-step workflow orchestration in Claude Code. Whe
 This approach ensures each step gets proper attention while maintaining continuity.
 
 ---
-## ⚠️ MODEL COMPLIANCE REQUIREMENTS
+## ⚠️ ADAPTIVE DECOMPOSITION REQUIREMENTS
 
-**CRITICAL FOR SONNET MODELS:**
+**Tasks must decompose to their tier-specific minimum depth.**
+
+### Tier-Based Minimum Depths
+
+| Tier | Score Range | Minimum Depth | When Applied |
+|------|-------------|---------------|--------------|
+| Tier 1 | < 5 | 1 | Simple single-file tasks |
+| Tier 2 | 5-15 | 2 | Moderate multi-component tasks |
+| Tier 3 | > 15 | 3 | Complex architectural tasks |
+
+### Decomposition Rules
+
+**Rule 1:** Calculate complexity score FIRST
+- Use formula: `action_verbs*2 + connectors*2 + domain_indicators + scope_indicators + risk_indicators`
+- Determine tier from score
+
+**Rule 2:** Apply tier-specific minimum depth
+- Tier 1 tasks: depth ≥ 1
+- Tier 2 tasks: depth ≥ 2
+- Tier 3 tasks: depth ≥ 3
+
+**Rule 3:** Only check atomicity at/above minimum depth
+- Below minimum: MUST decompose (no atomicity check)
+- At/above minimum: Apply full atomicity criteria
+
+### Model-Specific Override (Sonnet)
+
+**For claude-sonnet models:**
+- Override to Tier 3 regardless of calculated score
+- Enforces depth-3 minimum for all tasks
+- Maintains existing Sonnet compliance guardrails
+
+**Detection Logic:**
+```
+if "sonnet" in model_name.lower():
+    tier = 3
+    min_depth = 3
+```
+
+### CRITICAL FOR SONNET MODELS:
 
 This orchestrator requires STRICT protocol adherence. You MUST:
 - ✅ Follow ALL steps EXACTLY as written (no shortcuts)
 - ✅ Complete ALL validation checkpoints before proceeding
 - ✅ Output in EXACT formats specified (JSON, ASCII graphs)
-- ✅ Decompose tasks to minimum depth 3
+- ✅ Decompose tasks to tier-specific minimum depth (Sonnet: depth 3)
 
 **PROHIBITED BEHAVIORS:**
 - ❌ Skipping validation checkpoints
-- ❌ Marking tasks atomic before depth 3
+- ❌ Marking tasks atomic before tier minimum depth
 - ❌ Omitting required output sections
 - ❌ "Simplifying" for efficiency
 
@@ -212,17 +251,28 @@ Detect workflows when user requests contain:
 ---
 
 ---
-**⚠️ SONNET COMPLIANCE - DEPTH VALIDATION:**
+**⚠️ DEPTH VALIDATION CHECKPOINT:**
 Before marking ANY task as atomic:
-- [ ] Verify task depth ≥ 3 (MANDATORY minimum)
-- [ ] If depth < 3: MUST decompose further (no exceptions)
-- [ ] Document current depth in task metadata
+- [ ] Calculate complexity score
+- [ ] Determine tier (1, 2, or 3)
+- [ ] Get minimum depth for tier (Sonnet models: override to Tier 3)
+- [ ] Verify task depth ≥ tier minimum depth
+- [ ] If depth < tier minimum: MUST decompose further
+- [ ] Document tier, score, and depth in task metadata
 
-**BLOCKING:** Tasks at depth 0, 1, or 2 CANNOT be atomic.
+**BLOCKING:** Tasks below tier minimum depth CANNOT be atomic.
+
+**Sonnet Override:** All tasks use Tier 3 (depth ≥ 3) when model is claude-sonnet.
 ---
 
 ---
-**⚠️ ATOMICITY VALIDATION GATE:**
+**⚠️ TIER-AWARE ATOMICITY VALIDATION GATE:**
+
+**Step 1: Depth Constraint Check**
+- [ ] Task depth ≥ tier minimum depth? (Tier 1: ≥1, Tier 2: ≥2, Tier 3: ≥3)
+- [ ] If NO: MUST decompose (skip atomicity criteria below)
+
+**Step 2: Atomicity Criteria (only if depth ≥ tier minimum)**
 Confirm ALL criteria (all must be YES):
 - [ ] Completable in <30 minutes?
 - [ ] Modifies ≤3 files?
@@ -230,7 +280,115 @@ Confirm ALL criteria (all must be YES):
 - [ ] No planning required?
 - [ ] Single responsibility?
 
-**DECISION:** ALL YES → atomic. ANY NO → decompose further.
+**DECISION:**
+- Depth < tier minimum → DECOMPOSE (mandatory)
+- Depth ≥ tier minimum AND all atomicity criteria YES → atomic
+- Depth ≥ tier minimum AND any atomicity criteria NO → decompose further
+
+**Algorithm:**
+```python
+def is_atomic(task: str, depth: int, tier: int) -> bool:
+    # Get tier-specific minimum depth
+    min_depths = {1: 1, 2: 2, 3: 3}
+    min_depth = min_depths.get(tier, 3)  # Default to Tier 3
+
+    # DEPTH CONSTRAINT: Below tier minimum
+    if depth < min_depth:
+        return False  # Force decomposition
+
+    # At or above minimum: Apply full atomicity criteria
+    return (
+        estimated_time < 30 minutes and
+        files_modified <= 3 and
+        single_deliverable and
+        no_planning_required and
+        single_responsibility
+    )
+```
+---
+
+## Complexity Scoring and Tier Classification
+
+Before decomposing tasks, calculate complexity score to determine tier:
+
+### Complexity Scoring Formula
+
+**Scoring Components:**
+
+1. **Action Verb Count (0-10 points)**
+   - Count distinct action verbs (create, design, implement, test, deploy, etc.)
+   - Formula: `min(verb_count * 2, 10)`
+
+2. **Connector Words (0-8 points)**
+   - Sequential connectors: "and then", "after", "next" (+2 each)
+   - Compound connectors: "with", "including" (+1 each)
+   - Formula: `min(connector_count * 2, 8)`
+
+3. **Domain Indicators (0-6 points)**
+   - Architecture keywords: "design", "architect", "scalable" (+2)
+   - Security keywords: "auth", "secure", "encrypt" (+2)
+   - Integration keywords: "API", "database", "external" (+1)
+   - Formula: `min(domain_score, 6)`
+
+4. **Scope Indicators (0-6 points)**
+   - File count mentions: "multiple files", "across components" (+3)
+   - System count mentions: "frontend and backend", "microservices" (+3)
+   - Formula: `min(scope_score, 6)`
+
+5. **Risk Indicators (0-5 points)**
+   - Production keywords: "deploy", "release", "production" (+2)
+   - Data keywords: "migration", "database", "schema" (+2)
+   - Performance keywords: "optimize", "scale", "performance" (+1)
+   - Formula: `min(risk_score, 5)`
+
+**Total Complexity Score:** Sum of all components (0-35 range)
+
+### Tier Classification
+
+```python
+def classify_tier(complexity_score: int, model_name: str | None = None) -> int:
+    """
+    Classify task into tier based on complexity score.
+
+    Args:
+        complexity_score: Calculated complexity (0-35)
+        model_name: Claude model identifier (optional)
+
+    Returns:
+        Tier number (1, 2, or 3)
+    """
+    # Sonnet fallback (compliance guardrails)
+    if model_name and "sonnet" in model_name.lower():
+        return 3  # Always Tier 3 for Sonnet
+
+    # Standard tier mapping
+    if complexity_score < 5:
+        return 1  # Simple
+    elif complexity_score <= 15:
+        return 2  # Moderate
+    else:
+        return 3  # Complex
+```
+
+### Minimum Depth Lookup
+
+```python
+def get_minimum_depth(tier: int) -> int:
+    """Get minimum decomposition depth for tier."""
+    depth_map = {1: 1, 2: 2, 3: 3}
+    return depth_map.get(tier, 3)  # Default to depth-3
+```
+
+### Example Classifications
+
+| Task | Score | Tier | Min Depth | Rationale |
+|------|-------|------|-----------|-----------|
+| "Create utility function" | 2 | 1 | 1 | Single action, no complexity |
+| "Create calculator with tests" | 5 | 2 | 2 | Multiple components (calculator + tests) |
+| "Build REST API with auth and deployment" | 18 | 3 | 3 | Multiple systems, security, deployment |
+
+**Sonnet Model:** All tasks → Tier 3 (depth 3) regardless of score.
+
 ---
 
 ## Workflow Execution Strategy
@@ -912,13 +1070,16 @@ def validate_manifests(phases):
 This checkpoint ensures waves have consistent dependency isolation and proper phase sequencing.
 
 ---
-**⚠️ SONNET COMPLIANCE - DEPENDENCY ANALYSIS PREREQUISITE:**
+**⚠️ DEPENDENCY ANALYSIS PREREQUISITE:**
 Before analyzing dependencies:
-- [ ] Task tree is complete (all leaf nodes at depth ≥ 3)
+- [ ] Task tree is complete (all leaf nodes at depth ≥ tier minimum)
+- [ ] Tier classification performed for root task
 - [ ] All tasks have unique IDs
-- [ ] Atomicity validation passed for all leaf tasks
+- [ ] Atomicity validation passed for all leaf tasks (using tier-aware algorithm)
 
 **BLOCKING:** Do NOT proceed until prerequisites confirmed.
+
+**Sonnet Models:** All tasks validated at depth ≥ 3 (Tier 3 override).
 ---
 
 ### Validation Requirements

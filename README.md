@@ -85,8 +85,8 @@ Once installed, the delegation hook is automatically active. Simply use Claude C
 
 ```bash
 # Multi-step workflow - enable orchestration for context passing
-claude --append-system-prompt "$(cat ~/.claude/src/system-prompts/WORKFLOW_ORCHESTRATOR.md)" \
-  "Create calculator.py with tests and verify they pass"
+claude --append-system-prompt "$(cat ./.claude/src/system-prompts/WORKFLOW_ORCHESTRATOR.md)"
+prompt: "Create calculator.py with tests and verify they pass"
 ```
 
 #### Multi-Step Workflow Examples
@@ -94,8 +94,8 @@ claude --append-system-prompt "$(cat ~/.claude/src/system-prompts/WORKFLOW_ORCHE
 **Sequential Execution (dependent phases):**
 ```bash
 # Phases have dependencies - Phase 2 needs Phase 1's output
-claude --append-system-prompt "$(cat .claude/src/system-prompts/WORKFLOW_ORCHESTRATOR.md)" \
-  "Create calculator.py with tests and verify they pass"
+claude --append-system-prompt "$(cat .claude/src/system-prompts/WORKFLOW_ORCHESTRATOR.md)"
+prompt: "Create calculator.py with tests and verify they pass"
 
 # What happens:
 # 1. Phase 1: Create calculator.py
@@ -107,8 +107,8 @@ claude --append-system-prompt "$(cat .claude/src/system-prompts/WORKFLOW_ORCHEST
 **Parallel Execution (independent phases):**
 ```bash
 # Phases are independent - can execute concurrently
-claude --append-system-prompt "$(cat .claude/src/system-prompts/WORKFLOW_ORCHESTRATOR.md)" \
-  "Analyze authentication system AND design payment API"
+claude --append-system-prompt "$(cat .claude/src/system-prompts/WORKFLOW_ORCHESTRATOR.md)"
+prompt: "Analyze authentication system AND design payment API"
 
 # What happens:
 # Wave 1 (Parallel): Phase A + Phase B execute concurrently

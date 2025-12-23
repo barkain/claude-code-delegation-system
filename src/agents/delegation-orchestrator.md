@@ -280,6 +280,187 @@ A task is **NON-ATOMIC** if work can be parallelized across multiple resources (
 
 ---
 
+## Adaptive Complexity Scoring System
+
+### Scoring Formula
+
+Tasks are scored using adaptive complexity analysis:
+
+```
+complexity_score = file_count*2 + estimated_lines/50 + distinct_concerns*1.5 + external_dependencies + (architecture_decisions ? 3 : 0)
+```
+
+### Component Definitions
+
+| Component | Weight | Description | Measurement |
+|-----------|--------|-------------|-------------|
+| file_count | ×2 | Number of files to create/modify | Count files mentioned or inferred |
+| estimated_lines | ÷50 | Estimated lines of code | small:<50, medium:50-200, large:>200 |
+| distinct_concerns | ×1.5 | Separate domains/concerns | auth, API, database, UI, config, etc. |
+| external_dependencies | ×1 | External APIs/services | AWS, Stripe, external APIs, etc. |
+| architecture_decisions | +3 | Architectural changes required | design, architect, migrate, scale keywords |
+
+### Tier Classification
+
+- **Tier 1 (Simple):** `complexity_score < 5`
+- **Tier 2 (Moderate):** `5 ≤ complexity_score ≤ 15`
+- **Tier 3 (Complex):** `complexity_score > 15`
+
+### Complexity Analysis Protocol
+
+For EVERY task, perform the following analysis:
+
+**Step 1 - Count Files:**
+- Identify files explicitly mentioned in task description
+- Infer files from task scope (e.g., "with tests" implies test file)
+- Default: 1 file if unclear
+
+**Step 2 - Estimate Lines:**
+- **Small task (<50 lines):** Utility functions, simple scripts, configuration changes
+- **Medium task (50-200 lines):** Modules, API endpoints, class implementations
+- **Large task (>200 lines):** Full features, complex systems, multi-component implementations
+
+**Step 3 - Identify Concerns:**
+Look for these domains in task description:
+- **Authentication/Authorization:** Login, permissions, access control
+- **Database/Storage:** Schema, models, migrations, ORM
+- **API/Networking:** Endpoints, routes, REST, GraphQL
+- **User Interface:** Frontend, components, views, templates
+- **Configuration/Settings:** Environment vars, config files
+- **Testing/Validation:** Unit tests, integration tests, QA
+- **Documentation:** README, guides, API docs
+- **Deployment/DevOps:** Docker, CI/CD, infrastructure
+- **Security:** Encryption, validation, threat mitigation
+- **Performance:** Caching, optimization, async processing
+
+**Step 4 - Count External Dependencies:**
+Count external systems, APIs, or third-party services:
+- **Third-party APIs:** Stripe, Twilio, SendGrid, etc.
+- **Cloud services:** AWS S3, GCP Cloud Storage, Azure
+- **Databases:** PostgreSQL, Redis, MongoDB (if new to project)
+- **Message queues:** RabbitMQ, Kafka, SQS
+- **Authentication providers:** Auth0, Okta, OAuth providers
+
+**Step 5 - Detect Architecture Decisions:**
+Keywords that trigger +3: design, architect, refactor, migrate, scale, restructure, redesign, overhaul, framework, pattern
+
+**Step 6 - Calculate Score:**
+Apply formula and document breakdown
+
+### Scoring Examples
+
+**Example 1: Simple Task (Tier 1)**
+```
+Task: "Create hello.py with print statement"
+- file_count: 1 × 2 = 2
+- estimated_lines: 10 / 50 = 0.2
+- distinct_concerns: 1 × 1.5 = 1.5
+- external_dependencies: 0
+- architecture_decisions: 0
+- Total: 3.7 → Tier 1
+```
+
+**Example 2: Moderate Task (Tier 2)**
+```
+Task: "Implement FastAPI auth endpoint with JWT"
+- file_count: 3 × 2 = 6 (auth.py, models.py, tests)
+- estimated_lines: 150 / 50 = 3
+- distinct_concerns: 2 × 1.5 = 3 (auth, API)
+- external_dependencies: 0
+- architecture_decisions: 0
+- Total: 12 → Tier 2
+```
+
+**Example 3: Complex Task (Tier 3)**
+```
+Task: "Migrate monolith to microservices"
+- file_count: 10 × 2 = 20
+- estimated_lines: 500 / 50 = 10
+- distinct_concerns: 5 × 1.5 = 7.5 (API, DB, config, deploy, auth)
+- external_dependencies: 2
+- architecture_decisions: 3
+- Total: 42.5 → Tier 3
+```
+
+**Example 4: Architecture Change (Tier 3)**
+```
+Task: "Migrate authentication from sessions to JWT"
+- file_count: 5 × 2 = 10
+- estimated_lines: 300 / 50 = 6
+- distinct_concerns: 3 × 1.5 = 4.5 (business logic, security, data layer)
+- external_dependencies: 0
+- architecture_decisions: 3
+- Total: 23.5 → Tier 3
+```
+
+**Example 5: Multi-Service Integration (Tier 3)**
+```
+Task: "Build notification system with SMS, email, and push"
+- file_count: 6 × 2 = 12
+- estimated_lines: 400 / 50 = 8
+- distinct_concerns: 3 × 1.5 = 4.5 (business logic, external integrations, data layer)
+- external_dependencies: 3 (Twilio, SendGrid, Firebase)
+- architecture_decisions: 0
+- Total: 27.5 → Tier 3
+```
+
+### Heuristics for Missing Data
+
+If task description lacks specific information, use these conservative defaults:
+
+**File Count:**
+- Count explicitly mentioned files
+- Add +1 for tests if "with tests" or "test" appears
+- Add +1 for config if "configuration" or "settings" appears
+- Default: 1 file if no files mentioned
+
+**Lines Estimate:**
+- Keywords "small", "minor", "simple" → 50 lines
+- Keywords "medium", "moderate" → 200 lines
+- Keywords "large", "major", "complex" → 500 lines
+- Default: 100 lines if no size indicator
+
+**Distinct Concerns:**
+- Extract concerns from domain keywords (see Step 3 above)
+- Count unique domains mentioned
+- Minimum: 1 concern (every task has at least one)
+
+**External Dependencies:**
+- Count named APIs/services in task description
+- Default: 0 if no external services mentioned
+
+**Architecture Decisions:**
+- Check for architecture keywords (see Step 5 above)
+- Default: false if no architecture keywords found
+
+### Integration with Atomicity Criteria
+
+The complexity score complements atomicity analysis:
+
+**Tier 1 (Simple) Tasks:**
+- Often atomic at depth ≥ 3
+- Suitable for single-agent delegation
+- Minimal decomposition needed
+
+**Tier 2 (Moderate) Tasks:**
+- May be atomic at depth ≥ 3 if well-defined
+- Require 2-3 phase decomposition
+- Consider specialized agent selection
+
+**Tier 3 (Complex) Tasks:**
+- Rarely atomic, always require decomposition
+- Need 4+ phase decomposition
+- Mandatory specialized agent routing
+- Consider parallel execution for independent phases
+
+**Usage in Orchestration:**
+1. Calculate complexity score early in analysis
+2. Use tier to inform decomposition depth
+3. Route Tier 3 tasks to specialized agents
+4. Consider parallel execution for Tier 3 with independent concerns
+
+---
+
 ## Recursive Task Decomposition
 
 **CRITICAL: ALL tasks must undergo recursive decomposition until they meet atomicity criteria.**
